@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ["d1csarkz8obe9u.cloudfront.net"],
+    domains: ["d1csarkz8obe9u.cloudfront.net", "www.nicepng.com", "pickaface.net"],
   },
   webpack(config) {
 		config.resolve.modules.push(__dirname); // 추가

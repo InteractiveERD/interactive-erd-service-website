@@ -2,11 +2,16 @@ import Image from "next/image";
 import React from "react";
 import styled from "styled-components";
 import { HeaderMenu } from "interfaces/view/header.interface";
+import ROUTES from "constants/routes";
+import { useRouter } from "next/router";
 
 function Header() {
   const LOGO_PATH =
     "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/business-logo-design-template-78655edda18bc1196ab28760f1535baa_screen.jpg?ts=1617645324";
   const APP_NAME = "InteractiveERD";
+
+  const router = useRouter();
+  const onClickGetStarted = () => router.push(ROUTES.APP_DIAGRAM);
 
   return (
     <HeaderWrap>
@@ -31,7 +36,7 @@ function Header() {
             })}
           </MenuWrap>
           <ButtonsWrap>
-            <Button>{"Get Started!"}</Button>
+            <Button onClick={onClickGetStarted}>{"Get Started!"}</Button>
           </ButtonsWrap>
         </MenuButtonsWrap>
       </HeaderInnerWrap>
@@ -75,7 +80,8 @@ const HeaderWrap = styled.section`
   background-color: white;
   height: fit-content;
   width: 100vw;
-  z-index : 100;
+  z-index: 100;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.12);
 `;
 
 const HeaderInnerWrap = styled.div`
