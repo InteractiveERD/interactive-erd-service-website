@@ -1,5 +1,5 @@
 import { HeaderAvatar } from 'interfaces/view/header.interface';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { Column, Row } from './styled-common-components';
 import { FaRegHandPaper } from 'react-icons/fa';
@@ -8,15 +8,20 @@ import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { BOX_SHADOW, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import Image from 'next/image';
 import { useRecoilState } from 'recoil';
-import { DiagramTool, toolModeState } from 'modules/diagramModule';
-import { DiagramToolIcon } from 'interfaces/view/diagram.interface';
+import { DiagramTools, DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
+import { DiagramTool, DiagramToolIcon } from 'interfaces/view/diagram.interface';
 
 function DiagramHeader() {
    const LOGO_NAME = 'InteractiveERD';
 
    const [toolMode, setToolMode] = useRecoilState(toolModeState);
+   const [selectedTable, setTable] = useRecoilState(tableState);
 
-   const handleToolMode = (name: DiagramTool) => setToolMode(name);
+   const handleToolMode = (mode: DiagramTool) => setToolMode(mode);
+
+   useEffect(() => {
+      setTable(undefined);
+   }, [toolMode]);
 
    return (
       <DiagramHeaderWrap>
@@ -30,9 +35,9 @@ function DiagramHeader() {
                {TOOLS.map((tool: DiagramToolIcon) => {
                   return (
                      <ToolIcon
-                        key={tool.name}
-                        isSelected={toolMode === tool.name}
-                        onClick={() => handleToolMode(tool.name)}
+                        key={tool.mode.type}
+                        isSelected={toolMode.type === tool.mode.type}
+                        onClick={() => handleToolMode(tool.mode)}
                      >
                         {tool.children}
                      </ToolIcon>
@@ -40,6 +45,10 @@ function DiagramHeader() {
                })}
             </InteractiveTools>
          </LeftSideWrap>
+
+         <MiddleSideWrap>
+            <Text>[{toolMode.name.toUpperCase()}] MODE</Text>
+         </MiddleSideWrap>
 
          <RightSideWrap>
             <Collaborators>
@@ -87,15 +96,15 @@ const MOCK_AVARARS: HeaderAvatar[] = [
 
 const TOOLS: DiagramToolIcon[] = [
    {
-      name: DiagramTool.EDIT,
+      mode: DiagramTools[0],
       children: <BsCursor size={25} />,
    },
    {
-      name: DiagramTool.DRAG,
+      mode: DiagramTools[1],
       children: <FaRegHandPaper size={25} />,
    },
    {
-      name: DiagramTool.COMMENT,
+      mode: DiagramTools[2],
       children: <IoChatbubbleEllipsesOutline size={25} />,
    },
 ];
@@ -131,6 +140,15 @@ const DiagramHeaderWrap = styled.section`
 const LeftSideWrap = styled(Row)`
    gap: 30px;
 `;
+
+const MiddleSideWrap = styled(Row)`
+   ${Text} {
+      font-weight: 12px;
+      font-weight: 600;
+      color : black;
+   }
+`;
+
 const RightSideWrap = styled(Row)`
    gap: 30px;
 `;

@@ -1,22 +1,25 @@
-import Draggable from 'components/common/Draggable';
+// import Draggable from 'components/common/Draggable';
 import { BOX_SHADOW, SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { Table, TableTuple } from 'interfaces/network/table.interfaces';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useRecoilState } from 'recoil';
-import { DiagramTool, toolModeState } from 'modules/diagramModule';
+import { DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
+import { DiagramTool } from 'interfaces/view/diagram.interface';
 
 type Props = {
    table: Table;
+   toolMode: DiagramTool;
+   isSelected: boolean;
+   onClick: (table: Table) => void;
 };
 
-function DraggableTable({ table }: Props) {
-   const [toolMode] = useRecoilState(toolModeState);
+function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
    const draggableRef = useRef<HTMLDivElement>(null);
    const tableRef = useRef<HTMLTableElement>(null);
 
-   const isDragMode = toolMode === DiagramTool.DRAG;
-   const isEditMode = toolMode === DiagramTool.EDIT;
+   const isDragMode = toolMode.type === DiagramToolType.DRAG;
+   const isEditMode = toolMode.type === DiagramToolType.EDIT;
 
    const getCurrentPosition = (el: HTMLElement) => {
       const transform = el.style.transform;
@@ -99,7 +102,11 @@ function DraggableTable({ table }: Props) {
    }, [toolMode]);
 
    return (
-      <Draggable draggableRef={draggableRef}>
+      <Draggable
+         ref={draggableRef}
+         onClick={() => onClick(table)}
+         isSelected={isEditMode ? isSelected : true}
+      >
          <TableWrap ref={tableRef} toolMode={toolMode}>
             <TableHeadWrap>
                <TableHeadRow>
@@ -130,10 +137,20 @@ export default React.memo(DraggableTable);
 // common
 const TBody = styled.tbody``;
 
+//
+const Draggable = styled.div<{ isSelected: boolean }>`
+   user-select: none;
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -o-user-select: none;
+   opacity: ${({ isSelected }) => (isSelected ? 1.0 : 0.3)};
+`;
+
 const TableWrap = styled.table<{ toolMode: DiagramTool }>`
-   ${({ toolMode }) => toolMode === DiagramTool.EDIT && `cursor : pointer;`}
-   ${({ toolMode }) => toolMode === DiagramTool.DRAG && `cursor : grab;`}
-   ${({ toolMode }) => toolMode === DiagramTool.COMMENT && `cursor : help;`}
+   ${({ toolMode }) => toolMode.type === DiagramToolType.EDIT && `cursor : pointer;`}
+   ${({ toolMode }) => toolMode.type === DiagramToolType.DRAG && `cursor : grab;`}
+   ${({ toolMode }) => toolMode.type === DiagramToolType.COMMENT && `cursor : help;`}
    position: absolute;
    background-color: white;
    border-radius: 6px;

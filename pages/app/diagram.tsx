@@ -1,5 +1,5 @@
 import DiagramLayout from 'components/common/DiagramLayout';
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { IoIosArrowForward } from 'react-icons/io';
 import SideWindow from 'components/diagram/SideWindow';
@@ -8,15 +8,23 @@ import DraggableTable from 'components/diagram/DraggableTable';
 import { Table } from 'interfaces/network/table.interfaces';
 import { GetServerSideProps } from 'next';
 import { useRecoilState } from 'recoil';
-import { DiagramTool, toolModeState } from 'modules/diagramModule';
+import {  DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
 
 function DiagramPage({ tables }: { tables: Table[] }) {
+   // states
    const [isOpenSideWindow, setOpenSideWindow] = useState(true);
-   const [toolMode, setToolMode] = useRecoilState(toolModeState);
-
+   const [selectedTable, setTable] = useRecoilState(tableState);
+   const [toolMode] = useRecoilState(toolModeState);
 
    // handlers
    const onOpenSideWindow = () => setOpenSideWindow(true);
+   const onClickTable = (table: Table) => {
+      const isEditMode = toolMode.type === DiagramToolType.EDIT;
+      if (isEditMode) {
+         const copiedTableObj = Object.assign({}, table);
+         setTable(copiedTableObj);
+      }
+   };
 
    return (
       <DiagramPageWrap>
@@ -25,9 +33,17 @@ function DiagramPage({ tables }: { tables: Table[] }) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         <DiagramArea id="diagram-area" isOpen={isOpenSideWindow}>
+         <DiagramArea isOpen={isOpenSideWindow}>
             {tables.map((table: Table) => {
-               return <DraggableTable key={table.id} table={table} />;
+               return (
+                  <DraggableTable
+                     key={table.id}
+                     table={table}
+                     onClick={onClickTable}
+                     isSelected={table.name === selectedTable?.name}
+                     toolMode={toolMode}
+                  />
+               );
             })}
          </DiagramArea>
       </DiagramPageWrap>
@@ -55,7 +71,7 @@ const MOCK_TABLES: Table[] = [
       id: 0,
       name: 'user',
       alias: 'u',
-      color : "#fab1a0",
+      color: '#fab1a0',
       isDraggable: false,
       tuples: [
          {
@@ -78,7 +94,7 @@ const MOCK_TABLES: Table[] = [
       id: 1,
       name: 'product',
       alias: 'p',
-      color : "#74b9ff",
+      color: '#74b9ff',
       isDraggable: false,
       tuples: [
          {
@@ -101,7 +117,7 @@ const MOCK_TABLES: Table[] = [
       id: 2,
       name: 'user_has_product',
       alias: 'uhp',
-      color : "#ffeaa7",
+      color: '#ffeaa7',
       isDraggable: false,
       tuples: [
          {
@@ -124,7 +140,7 @@ const MOCK_TABLES: Table[] = [
       id: 3,
       name: 'follow_user',
       alias: 'fu',
-      color : "#fd79a8",
+      color: '#fd79a8',
       isDraggable: false,
       tuples: [
          {
@@ -147,7 +163,7 @@ const MOCK_TABLES: Table[] = [
       id: 4,
       name: 'product_option',
       alias: 'po',
-      color : "#00b894",
+      color: '#00b894',
       isDraggable: false,
       tuples: [
          {

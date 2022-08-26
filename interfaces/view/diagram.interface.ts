@@ -1,12 +1,17 @@
-import { DiagramTool } from "modules/diagramModule";
-import { ReactNode } from "react";
+import { DiagramToolType } from 'modules/diagramModule';
+import { ReactNode } from 'react';
 
 export interface Translate {
-    x : number;
-    y : number;
+   x: number;
+   y: number;
 }
 
 export interface DiagramToolIcon {
-    name : DiagramTool;
-    children : ReactNode;
+   mode: DiagramTool;
+   children: ReactNode;
+}
+
+export interface DiagramTool {
+   type: DiagramToolType;
+   name: string;
 }
