@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { DiagramToolType } from 'modules/diagramModule';
 import { DiagramToolMode } from 'interfaces/view/diagram.interface';
 import CustomColors from 'constants/colors';
+import { throttle } from 'lodash';
 
 type Props = {
    table: Table;
@@ -57,16 +58,27 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
       }
    };
 
+   const saveCurrentPosition = () => {
+      const tableWrap = tableRef.current;
+      if (!tableWrap) return;
+      const { x, y } = getCurrentPosition(tableWrap);
+      table.positionX = x;
+      table.positionY = y;
+      // TODO: 변경된 position 디비 저장 로직(debounce or throttle 필요)
+   };
+
    const onListenMouseUp = (ev: globalThis.MouseEvent) => {
       if (isDragMode) {
          table.isDraggable = false;
-
-         const tableWrap = tableRef.current;
-         if (!tableWrap) return;
-         const { x, y } = getCurrentPosition(tableWrap);
-         table.positionX = x;
-         table.positionY = y;
-         // TODO: 변경된 position 디비 저장 로직
+         saveCurrentPosition();
+      }
+   };
+   const onListenMouseLeave = (ev: globalThis.MouseEvent) => {
+      if (isDragMode) {
+         saveCurrentPosition();
+         if (table.isDraggable) {
+            setComponentPositionCenter(ev);
+         }
       }
    };
 
@@ -81,7 +93,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
       draggableWrap?.addEventListener('mousemove', onListenMouseMove);
       draggableWrap?.addEventListener('mousedown', onListenMouseDown);
       draggableWrap?.addEventListener('mouseup', onListenMouseUp);
-      draggableWrap?.addEventListener('mouseleave', onListenMouseUp);
+      draggableWrap?.addEventListener('mouseleave', onListenMouseLeave);
    };
 
    const removeMouseEventListeners = () => {
