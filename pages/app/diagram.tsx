@@ -1,5 +1,5 @@
 import DiagramLayout from 'components/common/DiagramLayout';
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import styled from 'styled-components';
 import { IoIosArrowForward } from 'react-icons/io';
 import SideWindow from 'components/diagram/SideWindow';
@@ -8,7 +8,7 @@ import DraggableTable from 'components/diagram/DraggableTable';
 import { Table } from 'interfaces/network/table.interfaces';
 import { GetServerSideProps } from 'next';
 import { useRecoilState } from 'recoil';
-import {  DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
+import { DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
 
 function DiagramPage({ tables }: { tables: Table[] }) {
    // states

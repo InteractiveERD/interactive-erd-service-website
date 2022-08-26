@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { IoMdClose } from 'react-icons/io';
-import { SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
+import { BOX_SHADOW, SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { useRecoilState } from 'recoil';
 import { tableState } from 'modules/diagramModule';
 
@@ -21,7 +21,21 @@ function SideWindow({ isOpen, setOpen }: Props) {
                <CloseButton onClick={onClose}>
                   <IoMdClose size={25} />
                </CloseButton>
-               {JSON.stringify(selectedTable, null, '\t')}
+
+               {selectedTable && (
+                  <TableWrap>
+                     <TableName color={selectedTable!.color}>
+                        {selectedTable?.name} AS {selectedTable.alias}
+                     </TableName>
+                     {selectedTable.tuples.map(tuple => {
+                        return (
+                           <TupleRow key={tuple.name}>
+                              {tuple.name} {tuple.dataType}
+                           </TupleRow>
+                        );
+                     })}
+                  </TableWrap>
+               )}
             </SideWindowWrap>
          )}
       </>
@@ -30,6 +44,10 @@ function SideWindow({ isOpen, setOpen }: Props) {
 
 export default SideWindow;
 
+// common
+const Text = styled.p``;
+
+//
 const SideWindowWrap = styled.section`
    position: fixed;
    height: 200vh;
@@ -37,10 +55,11 @@ const SideWindowWrap = styled.section`
    top: 0;
    bottom: 0;
    width: ${SIDE_WINDOW_WIDTH}px;
-   background-color: navy;
-   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+   background-color: gray;
+   box-shadow: ${BOX_SHADOW};
    z-index: 100;
    margin-top: ${SMALL_HEADER_HEIGHT}px;
+   padding-top: 30px;
 `;
 
 const CloseButton = styled.div`
@@ -49,3 +68,12 @@ const CloseButton = styled.div`
    right: 12px;
    cursor: pointer;
 `;
+
+const TableWrap = styled.div`
+   width: 100%;
+   padding: 16px;
+`;
+const TableName = styled.p<{ color: string | undefined }>`
+   color: ${({ color }) => color};
+`;
+const TupleRow = styled.div``;

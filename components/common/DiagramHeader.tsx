@@ -8,7 +8,7 @@ import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { BOX_SHADOW, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import Image from 'next/image';
 import { useRecoilState } from 'recoil';
-import { DiagramTools, DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
+import { DiagramTools, tableState, toolModeState } from 'modules/diagramModule';
 import { DiagramTool, DiagramToolIcon } from 'interfaces/view/diagram.interface';
 
 function DiagramHeader() {
@@ -145,7 +145,7 @@ const MiddleSideWrap = styled(Row)`
    ${Text} {
       font-weight: 12px;
       font-weight: 600;
-      color : black;
+      color: black;
    }
 `;
 

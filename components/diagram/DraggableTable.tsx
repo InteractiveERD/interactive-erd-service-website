@@ -1,10 +1,8 @@
-// import Draggable from 'components/common/Draggable';
 import { BOX_SHADOW, SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { Table, TableTuple } from 'interfaces/network/table.interfaces';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { useRecoilState } from 'recoil';
-import { DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
+import { DiagramToolType } from 'modules/diagramModule';
 import { DiagramTool } from 'interfaces/view/diagram.interface';
 
 type Props = {
@@ -38,8 +36,8 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
       const tableWrap = tableRef.current;
 
       if (!tableWrap) return;
-      const cursorX = ev.clientX - SIDE_WINDOW_WIDTH; // clientX는 화면전체 기준(현재 마진을 추가로 계산필요)
-      const cursorY = ev.clientY - SMALL_HEADER_HEIGHT;
+      const cursorX = ev.pageX - SIDE_WINDOW_WIDTH; // clientX는 화면전체 기준(현재 마진을 추가로 계산필요)
+      const cursorY = ev.pageY - SMALL_HEADER_HEIGHT;
 
       const newX = cursorX - tableWrap.offsetWidth / 2;
       const newY = cursorY - tableWrap.offsetHeight / 2;

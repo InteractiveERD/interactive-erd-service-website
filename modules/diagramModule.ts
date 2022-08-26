@@ -25,7 +25,7 @@ export const DiagramTools  : DiagramTool[] = [
 
 const toolModeState = atom<DiagramTool>({
    key: `toolModeState-${new Date()}`,
-   default: DiagramTools[0],
+   default: DiagramTools[1],
 });
 
 const tableState = atom<Table | undefined>({
