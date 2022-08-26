@@ -98,11 +98,10 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
 
    const removeMouseEventListeners = () => {
       const draggableWrap = draggableRef.current;
-
       draggableWrap?.removeEventListener('mousemove', onListenMouseMove);
       draggableWrap?.removeEventListener('mousedown', onListenMouseDown);
       draggableWrap?.removeEventListener('mouseup', onListenMouseUp);
-      draggableWrap?.removeEventListener('mouseleave', onListenMouseUp);
+      draggableWrap?.removeEventListener('mouseleave', onListenMouseLeave);
    };
 
    useEffect(() => {
