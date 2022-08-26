@@ -3,8 +3,10 @@ export interface Table {
   name: string;
   alias : string;
   tuples: TableTuple[];
+  color? : string;
   positionX : number;
   positionY : number;
+  isDraggable :boolean;
 }
 
 export interface TableTuple {

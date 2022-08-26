@@ -7,10 +7,13 @@ import { SIDE_WINDOW_WIDTH } from 'constants/view.const';
 import DraggableTable from 'components/diagram/DraggableTable';
 import { Table } from 'interfaces/network/table.interfaces';
 import { GetServerSideProps } from 'next';
+import { useRecoilState } from 'recoil';
+import { DiagramTool, toolModeState } from 'modules/diagramModule';
 
-function DiagramPage({ tables }: {tables : Table[]}) {
-   const areaRef = useRef<HTMLElement>(null);
+function DiagramPage({ tables }: { tables: Table[] }) {
    const [isOpenSideWindow, setOpenSideWindow] = useState(true);
+   const [toolMode, setToolMode] = useRecoilState(toolModeState);
+
 
    // handlers
    const onOpenSideWindow = () => setOpenSideWindow(true);
@@ -22,9 +25,9 @@ function DiagramPage({ tables }: {tables : Table[]}) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         <DiagramArea ref={areaRef} isOpen={isOpenSideWindow}>
+         <DiagramArea id="diagram-area" isOpen={isOpenSideWindow}>
             {tables.map((table: Table) => {
-               return <DraggableTable key={table.id} table={table} areaRef={areaRef} />;
+               return <DraggableTable key={table.id} table={table} />;
             })}
          </DiagramArea>
       </DiagramPageWrap>
@@ -39,7 +42,6 @@ DiagramPage.getLayout = function getLayout(page: ReactElement) {
 
 export const getServerSideProps: GetServerSideProps = async context => {
    const tables: Table[] = MOCK_TABLES;
-
    return {
       props: {
          tables,
@@ -53,6 +55,8 @@ const MOCK_TABLES: Table[] = [
       id: 0,
       name: 'user',
       alias: 'u',
+      color : "#fab1a0",
+      isDraggable: false,
       tuples: [
          {
             name: 'ID',
@@ -74,6 +78,8 @@ const MOCK_TABLES: Table[] = [
       id: 1,
       name: 'product',
       alias: 'p',
+      color : "#74b9ff",
+      isDraggable: false,
       tuples: [
          {
             name: 'ID',
@@ -95,6 +101,8 @@ const MOCK_TABLES: Table[] = [
       id: 2,
       name: 'user_has_product',
       alias: 'uhp',
+      color : "#ffeaa7",
+      isDraggable: false,
       tuples: [
          {
             name: 'ID',
@@ -111,6 +119,52 @@ const MOCK_TABLES: Table[] = [
       ],
       positionX: 250,
       positionY: 70,
+   },
+   {
+      id: 3,
+      name: 'follow_user',
+      alias: 'fu',
+      color : "#fd79a8",
+      isDraggable: false,
+      tuples: [
+         {
+            name: 'ID',
+            dataType: 'number',
+         },
+         {
+            name: 'fromUserId',
+            dataType: 'number',
+         },
+         {
+            name: 'toUserId',
+            dataType: 'number',
+         },
+      ],
+      positionX: 500,
+      positionY: 250,
+   },
+   {
+      id: 4,
+      name: 'product_option',
+      alias: 'po',
+      color : "#00b894",
+      isDraggable: false,
+      tuples: [
+         {
+            name: 'ID',
+            dataType: 'number',
+         },
+         {
+            name: 'name',
+            dataType: 'varchar',
+         },
+         {
+            name: 'addPrice',
+            dataType: 'number',
+         },
+      ],
+      positionX: 700,
+      positionY: 500,
    },
 ];
 
@@ -143,7 +197,7 @@ const SideOpenArrow = styled.div`
 `;
 
 const DiagramArea = styled.section<{ isOpen: boolean }>`
-   /* background-image: url("/assets/images/sample_background.jpg"); */
+   background-color: white;
    width: calc(100vw - ${({ isOpen }) => (isOpen ? SIDE_WINDOW_WIDTH : '0')}px);
    height: 100vh;
    margin-left: ${({ isOpen }) => (isOpen ? SIDE_WINDOW_WIDTH : '0')}px;
