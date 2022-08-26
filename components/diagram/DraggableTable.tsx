@@ -3,11 +3,12 @@ import { Table, TableTuple } from 'interfaces/network/table.interfaces';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { DiagramToolType } from 'modules/diagramModule';
-import { DiagramTool } from 'interfaces/view/diagram.interface';
+import { DiagramToolMode } from 'interfaces/view/diagram.interface';
+import CustomColors from 'constants/colors';
 
 type Props = {
    table: Table;
-   toolMode: DiagramTool;
+   toolMode: DiagramToolMode;
    isSelected: boolean;
    onClick: (table: Table) => void;
 };
@@ -118,7 +119,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
             <TBody>
                {table.tuples.map((tuple: TableTuple) => {
                   return (
-                     <TupleWrap key={tuple.name}>
+                     <TupleWrap key={tuple.name} toolMode={toolMode}>
                         <TupleName>{tuple.name}</TupleName>
                         <TupleType>{tuple.dataType}</TupleType>
                      </TupleWrap>
@@ -145,7 +146,7 @@ const Draggable = styled.div<{ isSelected: boolean }>`
    opacity: ${({ isSelected }) => (isSelected ? 1.0 : 0.3)};
 `;
 
-const TableWrap = styled.table<{ toolMode: DiagramTool }>`
+const TableWrap = styled.table<{ toolMode: DiagramToolMode }>`
    ${({ toolMode }) => toolMode.type === DiagramToolType.EDIT && `cursor : pointer;`}
    ${({ toolMode }) => toolMode.type === DiagramToolType.DRAG && `cursor : grab;`}
    ${({ toolMode }) => toolMode.type === DiagramToolType.COMMENT && `cursor : help;`}
@@ -162,7 +163,7 @@ const TableWrap = styled.table<{ toolMode: DiagramTool }>`
 `;
 
 const TableHeadWrap = styled.thead`
-   background-color: #f5f6fa;
+   background-color: ${CustomColors.background1};
 `;
 
 const TableColorSticker = styled.td<{ bgColor: string | undefined }>`
@@ -191,5 +192,14 @@ const TupleType = styled.td`
    padding-bottom: 6px;
    padding-left: 12px;
 `;
-const TupleWrap = styled.tr``;
+const TupleWrap = styled.tr<{ toolMode: DiagramToolMode }>`
+   ${({ toolMode }) =>
+      toolMode.type === DiagramToolType.EDIT &&
+      `
+      &:hover{
+      background-color : ${CustomColors.background2};
+      transition : all 0.2s;
+   }
+   `}
+`;
 const TableHeadRow = styled.tr``;

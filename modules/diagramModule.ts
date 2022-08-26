@@ -1,5 +1,5 @@
 import { Table } from 'interfaces/network/table.interfaces';
-import { DiagramTool } from 'interfaces/view/diagram.interface';
+import { DiagramToolMode } from 'interfaces/view/diagram.interface';
 import { atom, selector } from 'recoil';
 
 export enum DiagramToolType {
@@ -8,7 +8,7 @@ export enum DiagramToolType {
    COMMENT,
 }
 
-export const DiagramTools  : DiagramTool[] = [
+export const DiagramTools  : DiagramToolMode[] = [
    {
       type : DiagramToolType.EDIT,
       name : "edit",
@@ -23,7 +23,7 @@ export const DiagramTools  : DiagramTool[] = [
    },
 ]
 
-const toolModeState = atom<DiagramTool>({
+const toolModeState = atom<DiagramToolMode>({
    key: `toolModeState-${new Date()}`,
    default: DiagramTools[1],
 });

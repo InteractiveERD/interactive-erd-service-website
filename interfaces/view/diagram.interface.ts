@@ -7,11 +7,11 @@ export interface Translate {
 }
 
 export interface DiagramToolIcon {
-   mode: DiagramTool;
+   mode: DiagramToolMode;
    children: ReactNode;
 }
 
-export interface DiagramTool {
+export interface DiagramToolMode {
    type: DiagramToolType;
    name: string;
 }
