@@ -15,7 +15,7 @@ type Props = {
 };
 
 function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
-   const draggableRef = useRef<HTMLDivElement>(null);
+   // const draggableRef = useRef<HTMLDivElement>(null);
    const tableRef = useRef<HTMLTableElement>(null);
 
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
@@ -44,7 +44,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
 
    // 컴포넌트의 중앙에 커서가 오도록
    const setComponentPositionCenter = useCallback(
-      (ev: globalThis.MouseEvent) => {
+      (ev: React.MouseEvent) => {
          const tableWrap = tableRef.current;
 
          if (!tableWrap) return;
@@ -68,7 +68,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
    }, [toolMode]);
 
    const onListenMouseMove = useCallback(
-      (ev: globalThis.MouseEvent) => {
+      (ev: React.MouseEvent) => {
          if (table.isDraggable && isDragMode) {
             setComponentPositionCenter(ev);
          }
@@ -76,7 +76,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
       [toolMode],
    );
    const onListenMouseDown = useCallback(
-      (ev: globalThis.MouseEvent) => {
+      (ev: React.MouseEvent) => {
          if (isDragMode) {
             table.isDraggable = true;
             setComponentPositionCenter(ev);
@@ -86,7 +86,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
    );
 
    const onListenMouseUp = useCallback(
-      (ev: globalThis.MouseEvent) => {
+      (ev: React.MouseEvent) => {
          if (isDragMode) {
             table.isDraggable = false;
             saveCurrentPosition();
@@ -95,49 +95,29 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
       [toolMode],
    );
    const onListenMouseLeave = useCallback(
-      (ev: globalThis.MouseEvent) => {
+      (ev: React.MouseEvent) => {
          if (isDragMode) {
             saveCurrentPosition();
-            if (table.isDraggable) {
-               setComponentPositionCenter(ev);
-            }
+            table.isDraggable = false;
+            // if (table.isDraggable) {
+            //    setComponentPositionCenter(ev);
+            // }
          }
       },
       [toolMode],
    );
 
-   const setMouseEventListeners = () => {
-      const draggableWrap = draggableRef.current;
-
-      setInitialComponentPosition();
-      draggableWrap?.addEventListener('mousemove', onListenMouseMove);
-      draggableWrap?.addEventListener('mousedown', onListenMouseDown);
-      draggableWrap?.addEventListener('mouseup', onListenMouseUp);
-      draggableWrap?.addEventListener('mouseleave', onListenMouseLeave);
-   };
-
-   const removeMouseEventListeners = () => {
-      const draggableWrap = draggableRef.current;
-      draggableWrap?.removeEventListener('mousemove', onListenMouseMove);
-      draggableWrap?.removeEventListener('mousedown', onListenMouseDown);
-      draggableWrap?.removeEventListener('mouseup', onListenMouseUp);
-      draggableWrap?.removeEventListener('mouseleave', onListenMouseLeave);
-   };
-
    useEffect(() => {
-      if (isDragMode) {
-         setMouseEventListeners();
-      }
-      return () => {
-         if (isDragMode) {
-            removeMouseEventListeners();
-         }
-      };
-   }, [toolMode]);
+      setInitialComponentPosition();
+   }, []);
 
    return (
       <Draggable
-         ref={draggableRef}
+         // ref={draggableRef}
+         onMouseMove={onListenMouseMove}
+         onMouseUp={onListenMouseUp}
+         onMouseDown={onListenMouseDown}
+         onMouseLeave={onListenMouseLeave}
          onClick={() => onClick(table)}
          isSelected={isEditMode ? isSelected : true}
       >
