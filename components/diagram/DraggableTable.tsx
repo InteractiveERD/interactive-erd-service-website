@@ -1,6 +1,6 @@
 import { BOX_SHADOW, SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { Table, TableTuple } from 'interfaces/network/table.interfaces';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { DiagramToolType } from 'modules/diagramModule';
 import { DiagramToolMode } from 'interfaces/view/diagram.interface';
@@ -21,75 +21,95 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
    const isEditMode = toolMode.type === DiagramToolType.EDIT;
 
-   const getCurrentPosition = (el: HTMLElement) => {
-      const transform = el.style.transform;
-      const matrix = new WebKitCSSMatrix(transform);
-      const x = matrix.m41;
-      const y = matrix.m42;
+   const getCurrentPosition = useCallback(
+      (el: HTMLElement) => {
+         const transform = el.style.transform;
+         const matrix = new WebKitCSSMatrix(transform);
+         const x = matrix.m41;
+         const y = matrix.m42;
 
-      return {
-         x: x,
-         y: y,
-      };
-   };
+         return {
+            x: x,
+            y: y,
+         };
+      },
+      [toolMode],
+   );
+
+   const setInitialComponentPosition = useCallback(() => {
+      const tableWrap = tableRef.current;
+      if (!tableWrap) return;
+      tableWrap.style.transform = `translateX(${table.positionX}px) translateY(${table.positionY}px)`;
+   }, [toolMode]);
 
    // 컴포넌트의 중앙에 커서가 오도록
-   const setComponentPositionCenter = (ev: globalThis.MouseEvent) => {
-      const tableWrap = tableRef.current;
+   const setComponentPositionCenter = useCallback(
+      (ev: globalThis.MouseEvent) => {
+         const tableWrap = tableRef.current;
 
-      if (!tableWrap) return;
-      const cursorX = ev.pageX - SIDE_WINDOW_WIDTH; // clientX는 화면전체 기준(현재 마진을 추가로 계산필요)
-      const cursorY = ev.pageY - SMALL_HEADER_HEIGHT;
+         if (!tableWrap) return;
+         const cursorX = ev.pageX - SIDE_WINDOW_WIDTH; // clientX는 화면전체 기준(현재 마진을 추가로 계산필요), pageX는 현 컴포넌트 기준(스크롤의 영향을 안받음)
+         const cursorY = ev.pageY - SMALL_HEADER_HEIGHT;
 
-      const newX = cursorX - tableWrap.offsetWidth / 2;
-      const newY = cursorY - tableWrap.offsetHeight / 2;
-      tableWrap.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
-   };
+         const newX = cursorX - tableWrap.offsetWidth / 2;
+         const newY = cursorY - tableWrap.offsetHeight / 2;
+         tableWrap.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
+      },
+      [toolMode],
+   );
 
-   const onListenMouseMove = (ev: globalThis.MouseEvent) => {
-      if (table.isDraggable && isDragMode) {
-         setComponentPositionCenter(ev);
-      }
-   };
-   const onListenMouseDown = (ev: globalThis.MouseEvent) => {
-      if (isDragMode) {
-         table.isDraggable = true;
-         setComponentPositionCenter(ev);
-      }
-   };
-
-   const saveCurrentPosition = () => {
+   const saveCurrentPosition = useCallback(() => {
       const tableWrap = tableRef.current;
       if (!tableWrap) return;
       const { x, y } = getCurrentPosition(tableWrap);
       table.positionX = x;
       table.positionY = y;
       // TODO: 변경된 position 디비 저장 로직(debounce or throttle 필요)
-   };
+   }, [toolMode]);
 
-   const onListenMouseUp = (ev: globalThis.MouseEvent) => {
-      if (isDragMode) {
-         table.isDraggable = false;
-         saveCurrentPosition();
-      }
-   };
-   const onListenMouseLeave = (ev: globalThis.MouseEvent) => {
-      if (isDragMode) {
-         saveCurrentPosition();
-         if (table.isDraggable) {
+   const onListenMouseMove = useCallback(
+      (ev: globalThis.MouseEvent) => {
+         if (table.isDraggable && isDragMode) {
             setComponentPositionCenter(ev);
          }
-      }
-   };
+      },
+      [toolMode],
+   );
+   const onListenMouseDown = useCallback(
+      (ev: globalThis.MouseEvent) => {
+         if (isDragMode) {
+            table.isDraggable = true;
+            setComponentPositionCenter(ev);
+         }
+      },
+      [toolMode],
+   );
+
+   const onListenMouseUp = useCallback(
+      (ev: globalThis.MouseEvent) => {
+         if (isDragMode) {
+            table.isDraggable = false;
+            saveCurrentPosition();
+         }
+      },
+      [toolMode],
+   );
+   const onListenMouseLeave = useCallback(
+      (ev: globalThis.MouseEvent) => {
+         if (isDragMode) {
+            saveCurrentPosition();
+            if (table.isDraggable) {
+               setComponentPositionCenter(ev);
+            }
+         }
+      },
+      [toolMode],
+   );
 
    const setMouseEventListeners = () => {
-      const tableWrap = tableRef.current;
       const draggableWrap = draggableRef.current;
 
-      if (tableWrap) {
-         tableWrap.style.transform = `translateX(${table.positionX}px) translateY(${table.positionY}px)`;
-      }
-
+      setInitialComponentPosition();
       draggableWrap?.addEventListener('mousemove', onListenMouseMove);
       draggableWrap?.addEventListener('mousedown', onListenMouseDown);
       draggableWrap?.addEventListener('mouseup', onListenMouseUp);
@@ -105,9 +125,13 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
    };
 
    useEffect(() => {
-      setMouseEventListeners();
+      if (isDragMode) {
+         setMouseEventListeners();
+      }
       return () => {
-         removeMouseEventListeners();
+         if (isDragMode) {
+            removeMouseEventListeners();
+         }
       };
    }, [toolMode]);
 
