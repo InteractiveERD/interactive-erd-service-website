@@ -1,5 +1,5 @@
 import DiagramLayout from 'components/common/DiagramLayout';
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { IoIosArrowForward } from 'react-icons/io';
 import SideWindow from 'components/diagram/SideWindow';
@@ -15,6 +15,7 @@ function DiagramPage({ tables }: { tables: Table[] }) {
    const [isOpenSideWindow, setOpenSideWindow] = useState(true);
    const [selectedTable, setTable] = useRecoilState(tableState);
    const [toolMode] = useRecoilState(toolModeState);
+   const dragAreaRef = useRef<HTMLElement>(null);
 
    // handlers
    const onOpenSideWindow = () => setOpenSideWindow(true);
@@ -33,11 +34,12 @@ function DiagramPage({ tables }: { tables: Table[] }) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         <DiagramArea isOpen={isOpenSideWindow}>
+         <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
             {tables.map((table: Table) => {
                return (
                   <DraggableTable
                      key={table.id}
+                     parentRef={dragAreaRef}
                      table={table}
                      onClick={onClickTable}
                      isSelected={table.name === selectedTable?.name}

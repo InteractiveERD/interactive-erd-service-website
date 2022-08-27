@@ -1,21 +1,20 @@
 import { BOX_SHADOW, SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { Table, TableTuple } from 'interfaces/network/table.interfaces';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { RefObject, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { DiagramToolType } from 'modules/diagramModule';
 import { DiagramToolMode } from 'interfaces/view/diagram.interface';
 import CustomColors from 'constants/colors';
-import { throttle } from 'lodash';
 
 type Props = {
    table: Table;
    toolMode: DiagramToolMode;
+   parentRef: RefObject<HTMLElement>;
    isSelected: boolean;
    onClick: (table: Table) => void;
 };
 
-function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
-   // const draggableRef = useRef<HTMLDivElement>(null);
+function DraggableTable({ table, parentRef, toolMode, isSelected, onClick }: Props) {
    const tableRef = useRef<HTMLTableElement>(null);
 
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
@@ -44,7 +43,7 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
 
    // 컴포넌트의 중앙에 커서가 오도록
    const setComponentPositionCenter = useCallback(
-      (ev: React.MouseEvent) => {
+      (ev: globalThis.MouseEvent) => {
          const tableWrap = tableRef.current;
 
          if (!tableWrap) return;
@@ -68,40 +67,33 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
    }, [toolMode]);
 
    const onListenMouseMove = useCallback(
-      (ev: React.MouseEvent) => {
+      (ev: MouseEvent) => {
+         ev.stopPropagation();
+         ev.preventDefault();
          if (table.isDraggable && isDragMode) {
             setComponentPositionCenter(ev);
          }
       },
-      [toolMode],
+      [],
    );
    const onListenMouseDown = useCallback(
-      (ev: React.MouseEvent) => {
+      (ev: any) => {
          if (isDragMode) {
             table.isDraggable = true;
             setComponentPositionCenter(ev);
+            // parent에서 마우스이벤트를 관리해야 빠른 마우스 이동까지 커버 가능
+            parentRef?.current?.addEventListener('mousemove', onListenMouseMove);
          }
       },
       [toolMode],
    );
 
    const onListenMouseUp = useCallback(
-      (ev: React.MouseEvent) => {
+      (ev: any) => {
          if (isDragMode) {
             table.isDraggable = false;
             saveCurrentPosition();
-         }
-      },
-      [toolMode],
-   );
-   const onListenMouseLeave = useCallback(
-      (ev: React.MouseEvent) => {
-         if (isDragMode) {
-            saveCurrentPosition();
-            table.isDraggable = false;
-            // if (table.isDraggable) {
-            //    setComponentPositionCenter(ev);
-            // }
+            parentRef?.current?.removeEventListener('mousemove', onListenMouseMove);
          }
       },
       [toolMode],
@@ -111,13 +103,18 @@ function DraggableTable({ table, toolMode, isSelected, onClick }: Props) {
       setInitialComponentPosition();
    }, []);
 
+   useEffect(() => {
+      return () =>{
+         if(isDragMode){
+            parentRef.current?.removeEventListener('mousemove', onListenMouseMove);
+         }
+      }
+   }, [toolMode])
+
    return (
       <Draggable
-         // ref={draggableRef}
-         onMouseMove={onListenMouseMove}
          onMouseUp={onListenMouseUp}
          onMouseDown={onListenMouseDown}
-         onMouseLeave={onListenMouseLeave}
          onClick={() => onClick(table)}
          isSelected={isEditMode ? isSelected : true}
       >
