@@ -6,16 +6,21 @@ import SideWindow from 'components/diagram/SideWindow';
 import { SIDE_WINDOW_WIDTH } from 'constants/view.const';
 import DraggableTable from 'components/diagram/DraggableTable';
 import { Table } from 'interfaces/network/table.interfaces';
-import { GetServerSideProps } from 'next';
+import { GetStaticProps } from 'next';
 import { useRecoilState } from 'recoil';
-import { DiagramToolType, tableState, toolModeState } from 'modules/diagramModule';
+import { arrowLinesState, tableState, toolModeState } from 'modules/diagramModule';
+import Xarrow, { Xwrapper } from 'react-xarrows';
+import { ArrowLine, DiagramToolType } from 'interfaces/view/diagram.interface';
+import useConnect from 'hooks/useConnect';
 
 function DiagramPage({ tables }: { tables: Table[] }) {
    // states
    const [isOpenSideWindow, setOpenSideWindow] = useState(true);
    const [selectedTable, setTable] = useRecoilState(tableState);
+   const [arrowLines, _] = useRecoilState(arrowLinesState);
    const [toolMode] = useRecoilState(toolModeState);
    const dragAreaRef = useRef<HTMLElement>(null);
+   const [onClickTuple] = useConnect();
 
    // handlers
    const onOpenSideWindow = () => setOpenSideWindow(true);
@@ -34,20 +39,40 @@ function DiagramPage({ tables }: { tables: Table[] }) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
-            {tables.map((table: Table) => {
-               return (
-                  <DraggableTable
-                     key={table.id}
-                     parentRef={dragAreaRef}
-                     table={table}
-                     onClick={onClickTable}
-                     isSelected={table.name === selectedTable?.name}
-                     toolMode={toolMode}
-                  />
-               );
-            })}
-         </DiagramArea>
+         <Xwrapper>
+            <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
+               {tables.map((table: Table) => {
+                  return (
+                     <DraggableTable
+                        key={table.id}
+                        parentRef={dragAreaRef}
+                        table={table}
+                        onClick={onClickTable}
+                        onClickTuple={onClickTuple}
+                        isSelected={table.name === selectedTable?.name}
+                        toolMode={toolMode}
+                     />
+                  );
+               })}
+               {arrowLines.map((line: ArrowLine) => {
+                  const key = `${line.start}_${line.end}`;
+                  return (
+                     <Xarrow
+                        key={key}
+                        start={line.start} //can be react ref
+                        end={line.end} //or an id
+                        path={'smooth'}
+                        showHead={false}
+                        showTail={false}
+                        color={'navy'}
+                        strokeWidth={2}
+                        startAnchor={['left', 'right']}
+                        endAnchor={['left', 'right']}
+                     />
+                  );
+               })}
+            </DiagramArea>
+         </Xwrapper>
       </DiagramPageWrap>
    );
 }
@@ -58,7 +83,7 @@ DiagramPage.getLayout = function getLayout(page: ReactElement) {
    return <DiagramLayout title={'DIAGRAM'}>{page}</DiagramLayout>;
 };
 
-export const getServerSideProps: GetServerSideProps = async context => {
+export const getStaticProps: GetStaticProps = async context => {
    const tables: Table[] = MOCK_TABLES;
    return {
       props: {
@@ -198,7 +223,7 @@ const DiagramPageWrap = styled.div`
 const SideOpenArrow = styled.div`
    cursor: pointer;
    position: fixed;
-   z-index: 100;
+   z-index: 98;
    top: 15%;
    left: 0px;
    background-color: white;

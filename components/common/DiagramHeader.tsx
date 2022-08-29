@@ -1,23 +1,22 @@
 import { HeaderAvatar } from 'interfaces/view/header.interface';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Column, Row } from './styled-common-components';
+import { Column, CustomImage, Row } from './styled-common-components';
 import { FaRegHandPaper } from 'react-icons/fa';
 import { BsCursor } from 'react-icons/bs';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { BOX_SHADOW, SMALL_HEADER_HEIGHT } from 'constants/view.const';
-import Image from 'next/image';
 import { useRecoilState } from 'recoil';
 import { DiagramTools, tableState, toolModeState } from 'modules/diagramModule';
-import { DiagramTool, DiagramToolIcon } from 'interfaces/view/diagram.interface';
+import { DiagramToolMode, DiagramToolIcon } from 'interfaces/view/diagram.interface';
 
 function DiagramHeader() {
    const LOGO_NAME = 'InteractiveERD';
 
    const [toolMode, setToolMode] = useRecoilState(toolModeState);
-   const [selectedTable, setTable] = useRecoilState(tableState);
+   const [_, setTable] = useRecoilState(tableState);
 
-   const handleToolMode = (mode: DiagramTool) => setToolMode(mode);
+   const handleToolMode = (mode: DiagramToolMode) => setToolMode(mode);
 
    useEffect(() => {
       setTable(undefined);
@@ -115,7 +114,7 @@ const Button = styled.button`
    cursor: pointer;
    border: none;
 `;
-const CircleAvatar = styled(Image)`
+const CircleAvatar = styled(CustomImage)`
    border-radius: 50%;
 `;
 

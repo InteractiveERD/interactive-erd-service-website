@@ -1,5 +1,15 @@
-import { DiagramToolType } from 'modules/diagramModule';
-import { ReactNode } from 'react';
+import { ReactNode, RefObject } from 'react';
+
+export enum DiagramToolType {
+   EDIT,
+   DRAG,
+   COMMENT,
+}
+
+export enum ArrowLineEdgeType {
+   Single,
+   Mutiple,
+}
 
 export interface Translate {
    x: number;
@@ -14,4 +24,11 @@ export interface DiagramToolIcon {
 export interface DiagramToolMode {
    type: DiagramToolType;
    name: string;
+}
+
+export interface ArrowLine {
+   start: string | RefObject<HTMLElement>;
+   end: string | RefObject<HTMLElement>;
+   startEdgeType: ArrowLineEdgeType;
+   endEdgeType: ArrowLineEdgeType;
 }

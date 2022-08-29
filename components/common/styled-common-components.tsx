@@ -21,3 +21,5 @@ export const HorizListView = styled(Row)<{ width: number }>`
   width: ${({ width }) => width || "300px"};
   overflow-y: scroll;
 `;
+
+export const CustomImage = styled.img``

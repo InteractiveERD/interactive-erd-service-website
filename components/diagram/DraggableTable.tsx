@@ -1,115 +1,40 @@
-import { BOX_SHADOW, SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
+import { BOX_SHADOW } from 'constants/view.const';
 import { Table, TableTuple } from 'interfaces/network/table.interfaces';
-import React, { RefObject, useCallback, useEffect, useRef } from 'react';
+import React, { RefObject, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { DiagramToolType } from 'modules/diagramModule';
-import { DiagramToolMode } from 'interfaces/view/diagram.interface';
+import { DiagramToolMode, DiagramToolType } from 'interfaces/view/diagram.interface';
 import CustomColors from 'constants/colors';
+import useDrag from 'hooks/useDrag';
 
 type Props = {
    table: Table;
    toolMode: DiagramToolMode;
    parentRef: RefObject<HTMLElement>;
    isSelected: boolean;
+   onClickTuple : (edgeId : string) =>void;
    onClick: (table: Table) => void;
 };
 
-function DraggableTable({ table, parentRef, toolMode, isSelected, onClick }: Props) {
+function DraggableTable({ table, parentRef, toolMode, isSelected, onClick, onClickTuple }: Props) {
    const tableRef = useRef<HTMLTableElement>(null);
 
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
    const isEditMode = toolMode.type === DiagramToolType.EDIT;
 
-   const getCurrentPosition = useCallback(
-      (el: HTMLElement) => {
-         const transform = el.style.transform;
-         const matrix = new WebKitCSSMatrix(transform);
-         const x = matrix.m41;
-         const y = matrix.m42;
-
-         return {
-            x: x,
-            y: y,
-         };
-      },
-      [toolMode],
-   );
-
-   const setInitialComponentPosition = useCallback(() => {
-      const tableWrap = tableRef.current;
-      if (!tableWrap) return;
-      tableWrap.style.transform = `translateX(${table.positionX}px) translateY(${table.positionY}px)`;
-   }, [toolMode]);
-
-   // 컴포넌트의 중앙에 커서가 오도록
-   const setComponentPositionCenter = useCallback(
-      (ev: globalThis.MouseEvent) => {
-         const tableWrap = tableRef.current;
-
-         if (!tableWrap) return;
-         const cursorX = ev.pageX - SIDE_WINDOW_WIDTH; // clientX는 화면전체 기준(현재 마진을 추가로 계산필요), pageX는 현 컴포넌트 기준(스크롤의 영향을 안받음)
-         const cursorY = ev.pageY - SMALL_HEADER_HEIGHT;
-
-         const newX = cursorX - tableWrap.offsetWidth / 2;
-         const newY = cursorY - tableWrap.offsetHeight / 2;
-         tableWrap.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
-      },
-      [toolMode],
-   );
-
-   const saveCurrentPosition = useCallback(() => {
-      const tableWrap = tableRef.current;
-      if (!tableWrap) return;
-      const { x, y } = getCurrentPosition(tableWrap);
-      table.positionX = x;
-      table.positionY = y;
-      // TODO: 변경된 position 디비 저장 로직(debounce or throttle 필요)
-   }, [toolMode]);
-
-   const onListenMouseMove = useCallback(
-      (ev: MouseEvent) => {
-         ev.stopPropagation();
-         ev.preventDefault();
-         if (table.isDraggable && isDragMode) {
-            setComponentPositionCenter(ev);
-         }
-      },
-      [],
-   );
-   const onListenMouseDown = useCallback(
-      (ev: any) => {
-         if (isDragMode) {
-            table.isDraggable = true;
-            setComponentPositionCenter(ev);
-            // parent에서 마우스이벤트를 관리해야 빠른 마우스 이동까지 커버 가능
-            parentRef?.current?.addEventListener('mousemove', onListenMouseMove);
-         }
-      },
-      [toolMode],
-   );
-
-   const onListenMouseUp = useCallback(
-      (ev: any) => {
-         if (isDragMode) {
-            table.isDraggable = false;
-            saveCurrentPosition();
-            parentRef?.current?.removeEventListener('mousemove', onListenMouseMove);
-         }
-      },
-      [toolMode],
-   );
+   const { setInitialComponentPosition, onListenMouseMove, onListenMouseUp, onListenMouseDown } =
+      useDrag({ table, tableRef, parentRef, toolMode });
 
    useEffect(() => {
       setInitialComponentPosition();
    }, []);
 
    useEffect(() => {
-      return () =>{
-         if(isDragMode){
+      return () => {
+         if (isDragMode) {
             parentRef.current?.removeEventListener('mousemove', onListenMouseMove);
          }
-      }
-   }, [toolMode])
+      };
+   }, [toolMode]);
 
    return (
       <Draggable
@@ -130,8 +55,9 @@ function DraggableTable({ table, parentRef, toolMode, isSelected, onClick }: Pro
 
             <TBody>
                {table.tuples.map((tuple: TableTuple) => {
+                  const id: string = `table-${table.name}-tuple-${tuple.name}`;
                   return (
-                     <TupleWrap key={tuple.name} toolMode={toolMode}>
+                     <TupleWrap id={id} key={tuple.name} toolMode={toolMode} onClick={() => onClickTuple(id)}>
                         <TupleName>{tuple.name}</TupleName>
                         <TupleType>{tuple.dataType}</TupleType>
                      </TupleWrap>

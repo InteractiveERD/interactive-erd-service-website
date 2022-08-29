@@ -1,7 +1,7 @@
 import BaseLayout from "components/common/BaseLayout";
+import { CustomImage } from "components/common/styled-common-components";
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import { ReactElement } from "react";
 import styles from "../styles/Home.module.css";
 import type { NextPageWithLayout } from "./_app";
@@ -64,7 +64,7 @@ const Home: NextPageWithLayout = () => {
         >
           Powered by{" "}
           <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+            <CustomImage src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>

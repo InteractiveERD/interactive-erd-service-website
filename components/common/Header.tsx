@@ -1,9 +1,9 @@
-import Image from "next/image";
 import React from "react";
 import styled from "styled-components";
 import { HeaderMenu } from "interfaces/view/header.interface";
 import ROUTES from "constants/routes";
 import { useRouter } from "next/router";
+import { CustomImage } from "./styled-common-components";
 
 function Header() {
   const LOGO_PATH =
@@ -17,7 +17,7 @@ function Header() {
     <HeaderWrap>
       <HeaderInnerWrap>
         <LogoWrap>
-          <Image
+          <CustomImage
             src={LOGO_PATH}
             alt={APP_NAME}
             width={"100px"}
@@ -136,6 +136,7 @@ const ButtonsWrap = styled.div`
     border: none;
     padding: 12px 20px;
     background-color: navy;
+    color : white;
     border-radius: 6px;
     font-size: 16px;
     font-weight: 600;
