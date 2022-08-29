@@ -10,8 +10,9 @@ import { GetStaticProps } from 'next';
 import { useRecoilState } from 'recoil';
 import { arrowLinesState, tableState, toolModeState } from 'modules/diagramModule';
 import Xarrow, { Xwrapper } from 'react-xarrows';
-import { ArrowLine, DiagramToolType } from 'interfaces/view/diagram.interface';
+import { ArrowLine, ArrowLineEdgeType, DiagramToolType } from 'interfaces/view/diagram.interface';
 import useConnect from 'hooks/useConnect';
+import CustomColors from 'constants/colors';
 
 function DiagramPage({ tables }: { tables: Table[] }) {
    // states
@@ -56,6 +57,7 @@ function DiagramPage({ tables }: { tables: Table[] }) {
                })}
                {arrowLines.map((line: ArrowLine) => {
                   const key = `${line.start}_${line.end}`;
+                  // const label = `${line.startEdgeType} : ${line.endEdgeType}`
                   return (
                      <Xarrow
                         key={key}
@@ -64,6 +66,12 @@ function DiagramPage({ tables }: { tables: Table[] }) {
                         path={'smooth'}
                         showHead={false}
                         showTail={false}
+                        labels={{
+                           start : line.startEdgeType,
+                           end : line.endEdgeType,
+                        }}
+                        
+                        lineColor={CustomColors.background2}
                         color={'navy'}
                         strokeWidth={2}
                         startAnchor={['left', 'right']}

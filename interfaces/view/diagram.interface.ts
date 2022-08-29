@@ -7,8 +7,8 @@ export enum DiagramToolType {
 }
 
 export enum ArrowLineEdgeType {
-   Single,
-   Mutiple,
+   Single = "1",
+   Mutiple = "n",
 }
 
 export interface Translate {

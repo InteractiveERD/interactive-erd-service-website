@@ -10,6 +10,7 @@ function useConnect() {
    const [arrowLines, setArrowLines] = useRecoilState(arrowLinesState);
    const [toolMode, _] = useRecoilState(toolModeState);
    const isEditMode = toolMode.type === DiagramToolType.EDIT;
+   // TODO : 중간에 해제하고 싶을 때 기능 추가필요
 
    const onClickTuple = (edgeId: string) => {
       if (!isEditMode) return;
