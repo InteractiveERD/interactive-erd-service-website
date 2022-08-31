@@ -2,10 +2,11 @@ import { SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { Table } from 'interfaces/network/table.interfaces';
 import { DiagramToolMode, DiagramToolType } from 'interfaces/view/diagram.interface';
 import { sideWindowWidthState } from 'modules/diagramModule';
-import React, { RefObject, useCallback, useEffect } from 'react';
+import React, { RefObject, useCallback } from 'react';
 import { useXarrow } from 'react-xarrows';
 import { useRecoilState } from 'recoil';
 import { getPositionByTransform } from 'utils/position.util';
+import useArrowLine from './useArrowLine';
 
 type Props = {
    table: Table;
@@ -17,9 +18,7 @@ type Props = {
 function useDrag({ table, tableRef, parentRef, toolMode }: Props) {
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
    const [sideWindowWidth, _] = useRecoilState(sideWindowWidthState);
-
-   React.useLayoutEffect = React.useEffect; // useLayoutEffect warning message 때문에 작성(Xwrapper안에 useLayoutEffect가 존재)
-   const updateXarrow = useXarrow();
+   const { updateArrowLinePosition } = useArrowLine();
 
    const getPosition = useCallback(getPositionByTransform, [toolMode]);
 
@@ -41,7 +40,7 @@ function useDrag({ table, tableRef, parentRef, toolMode }: Props) {
          const newX = cursorX - tableWrap.offsetWidth / 2;
          const newY = cursorY - tableWrap.offsetHeight / 2;
          tableWrap.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
-         updateXarrow();
+         updateArrowLinePosition();
       },
       [toolMode, sideWindowWidth],
    );

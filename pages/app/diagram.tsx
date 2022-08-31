@@ -48,65 +48,31 @@ function DiagramPage({ tables }: { tables: Table[] }) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         {/* <Xwrapper> */}
-         <DiagramArea
-            isOpen={isOpenSideWindow}
-            ref={dragAreaRef}
-            onMouseMove={(e: React.MouseEvent) => {
-               // console.log({
-               //    cursorX : e.pageX,
-               //    cursorY : e.pageY,
-               // })
-            }}
-         >
-            {tables.map((table: Table) => {
-               return (
-                  <DraggableTable
-                     key={table.id}
-                     parentRef={dragAreaRef}
-                     table={table}
-                     onClick={onClickTable}
-                     onClickTuple={onClickTuple}
-                     isSelected={table.name === selectedTable?.name}
-                     toolMode={toolMode}
-                  />
-               );
-            })}
-            {arrowLines.map((line: ArrowLineType) => {
-               const key = `${line.start}_${line.end}`;
-               // const label = `${line.startEdgeType} : ${line.endEdgeType}`;
-               return (
-                  <ArrowLine
-                     key={key}
-                     start={line.start} //can be react ref
-                     end={line.end} //or an id
-                  />
+         <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
+            <TablesWrap>
+               {tables.map((table: Table) => {
+                  return (
+                     <DraggableTable
+                        key={table.id}
+                        parentRef={dragAreaRef}
+                        table={table}
+                        onClick={onClickTable}
+                        onClickTuple={onClickTuple}
+                        isSelected={table.name === selectedTable?.name}
+                        toolMode={toolMode}
+                     />
+                  );
+               })}
+            </TablesWrap>
 
-                  // <Xarrow
-                  //    key={key}
-                  //    start={line.start} //can be react ref
-                  //    end={line.end} //or an id
-                  //    path={'smooth'}
-                  //    showHead={false}
-                  //    showTail={false}
-                  //    labels={{
-                  //       start : line.startEdgeType,
-                  //       end : line.endEdgeType,
-                  //    }}
-                  //    lineColor={CustomColors.background2}
-                  //    color={'navy'}
-                  //    strokeWidth={2}
-                  //    startAnchor={['left', 'right']}
-                  //    endAnchor={['left', 'right']}
-                  // />
-               );
-            })}
-            {/* <ArrowLine
-                  start={"table-user-tuple-ID"} //can be react ref
-                  end={"table-follow_user-tuple-fromUserId"} //or an id
-               /> */}
+            <ArrowLinesWrap>
+               {arrowLines.map((line: ArrowLineType) => {
+                  const key = `${line.start}_${line.end}`;
+                  // const label = `${line.startEdgeType} : ${line.endEdgeType}`;
+                  return <ArrowLine key={key} start={line.start} end={line.end} />;
+               })}
+            </ArrowLinesWrap>
          </DiagramArea>
-         {/* </Xwrapper> */}
       </DiagramPageWrap>
    );
 }
@@ -279,3 +245,6 @@ const DiagramArea = styled.section<{ isOpen: boolean }>`
    height: 100vh;
    margin-left: ${({ isOpen }) => (isOpen ? SIDE_WINDOW_WIDTH : '0')}px;
 `;
+
+const TablesWrap = styled.div``;
+const ArrowLinesWrap = styled.div``;

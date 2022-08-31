@@ -1,4 +1,3 @@
-import { Table } from 'interfaces/network/table.interfaces';
 import { ArrowLineType, RelationType, DiagramToolType } from 'interfaces/view/diagram.interface';
 import { arrowLinesState, toolModeState } from 'modules/diagramModule';
 import React, { useEffect, useState } from 'react';

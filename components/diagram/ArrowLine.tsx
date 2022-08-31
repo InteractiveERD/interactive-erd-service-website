@@ -1,7 +1,9 @@
 import { SMALL_HEADER_HEIGHT } from 'constants/view.const';
+import useArrowLine from 'hooks/useArrowLine';
 import { RelationType } from 'interfaces/view/diagram.interface';
 import { sideWindowWidthState } from 'modules/diagramModule';
 import React, { RefObject, useEffect, useState } from 'react';
+import { useXarrow } from 'react-xarrows';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
@@ -14,6 +16,7 @@ type Props = {
    strokeWidth?: number;
    startIcon?: string;
    endIcon?: string;
+   // x:  number;
 };
 
 type ClipSide = 'left' | 'right';
@@ -28,9 +31,11 @@ export function ArrowLine({
    strokeWidth = 3,
    startIcon = '',
    endIcon = '',
-}: Props) {
+}: // x,
+Props) {
    const [sideWindowWidth, _] = useRecoilState(sideWindowWidthState);
    const [linePath, setLinePath] = useState('');
+   const { updateArrowLinePosition } = useArrowLine();
 
    const getCurrentPosition = () => {
       const startEle: HTMLElement | null =
@@ -159,7 +164,9 @@ export function ArrowLine({
 
    useEffect(() => {
       drawLine();
-   }, []);
+   }, [updateArrowLinePosition]);
+
+   useXarrow();
 
    return (
       <ArrowLineWrap>
