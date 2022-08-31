@@ -8,7 +8,7 @@ import {
    STRONG_BOX_SHADOW,
 } from 'constants/view.const';
 import { useRecoilState } from 'recoil';
-import { tableState } from 'modules/diagramModule';
+import { sideWindowWidthState, tableState } from 'modules/diagramModule';
 import { BsTable } from 'react-icons/bs';
 import { Column, Row } from 'components/common/styled-common-components';
 import CustomColors from 'constants/colors';
@@ -21,8 +21,12 @@ type Props = {
 
 function SideWindow({ isOpen, setOpen }: Props) {
    const [selectedTable, setTable] = useRecoilState(tableState);
+   const [sideWindowWidth, setSideWindowWidth] = useRecoilState(sideWindowWidthState);
 
-   const onClose = () => setOpen(false);
+   const onClose = () => {
+      setOpen(false);
+      setSideWindowWidth(0);
+   };
    return (
       <>
          {isOpen && (

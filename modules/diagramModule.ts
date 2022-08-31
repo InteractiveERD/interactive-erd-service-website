@@ -1,5 +1,6 @@
+import { SIDE_WINDOW_WIDTH } from 'constants/view.const';
 import { Table } from 'interfaces/network/table.interfaces';
-import { ArrowLine, DiagramToolMode, DiagramToolType } from 'interfaces/view/diagram.interface';
+import { ArrowLineType, DiagramToolMode, DiagramToolType } from 'interfaces/view/diagram.interface';
 import { atom, selector } from 'recoil';
 
 export const DiagramTools: DiagramToolMode[] = [
@@ -27,9 +28,14 @@ const tableState = atom<Table | undefined>({
    default: undefined,
 });
 
-const arrowLinesState = atom<ArrowLine[]>({
+const arrowLinesState = atom<ArrowLineType[]>({
    key: `arrowLinesState-${new Date()}`,
    default: [],
 });
 
-export { toolModeState, tableState, arrowLinesState };
+const sideWindowWidthState = atom<number>({
+   key: `sideWindowWidthState-${new Date()}`,
+   default: SIDE_WINDOW_WIDTH,
+});
+
+export { toolModeState, tableState, arrowLinesState, sideWindowWidthState };

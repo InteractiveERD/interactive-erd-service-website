@@ -8,11 +8,15 @@ import DraggableTable from 'components/diagram/DraggableTable';
 import { Table } from 'interfaces/network/table.interfaces';
 import { GetStaticProps } from 'next';
 import { useRecoilState } from 'recoil';
-import { arrowLinesState, tableState, toolModeState } from 'modules/diagramModule';
-import Xarrow, { Xwrapper } from 'react-xarrows';
-import { ArrowLine, ArrowLineEdgeType, DiagramToolType } from 'interfaces/view/diagram.interface';
+import {
+   arrowLinesState,
+   sideWindowWidthState,
+   tableState,
+   toolModeState,
+} from 'modules/diagramModule';
+import { ArrowLineType, DiagramToolType } from 'interfaces/view/diagram.interface';
 import useConnect from 'hooks/useConnect';
-import CustomColors from 'constants/colors';
+import ArrowLine from 'components/diagram/ArrowLine';
 
 function DiagramPage({ tables }: { tables: Table[] }) {
    // states
@@ -22,9 +26,13 @@ function DiagramPage({ tables }: { tables: Table[] }) {
    const [toolMode] = useRecoilState(toolModeState);
    const dragAreaRef = useRef<HTMLElement>(null);
    const [onClickTuple] = useConnect();
+   const [__, setSideWindowWidth] = useRecoilState(sideWindowWidthState);
 
    // handlers
-   const onOpenSideWindow = () => setOpenSideWindow(true);
+   const onOpenSideWindow = () => {
+      setOpenSideWindow(true);
+      setSideWindowWidth(SIDE_WINDOW_WIDTH);
+   };
    const onClickTable = (table: Table) => {
       const isEditMode = toolMode.type === DiagramToolType.EDIT;
       if (isEditMode) {
@@ -40,47 +48,65 @@ function DiagramPage({ tables }: { tables: Table[] }) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         <Xwrapper>
-            <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
-               {tables.map((table: Table) => {
-                  return (
-                     <DraggableTable
-                        key={table.id}
-                        parentRef={dragAreaRef}
-                        table={table}
-                        onClick={onClickTable}
-                        onClickTuple={onClickTuple}
-                        isSelected={table.name === selectedTable?.name}
-                        toolMode={toolMode}
-                     />
-                  );
-               })}
-               {arrowLines.map((line: ArrowLine) => {
-                  const key = `${line.start}_${line.end}`;
-                  // const label = `${line.startEdgeType} : ${line.endEdgeType}`
-                  return (
-                     <Xarrow
-                        key={key}
-                        start={line.start} //can be react ref
-                        end={line.end} //or an id
-                        path={'smooth'}
-                        showHead={false}
-                        showTail={false}
-                        labels={{
-                           start : line.startEdgeType,
-                           end : line.endEdgeType,
-                        }}
-                        
-                        lineColor={CustomColors.background2}
-                        color={'navy'}
-                        strokeWidth={2}
-                        startAnchor={['left', 'right']}
-                        endAnchor={['left', 'right']}
-                     />
-                  );
-               })}
-            </DiagramArea>
-         </Xwrapper>
+         {/* <Xwrapper> */}
+         <DiagramArea
+            isOpen={isOpenSideWindow}
+            ref={dragAreaRef}
+            onMouseMove={(e: React.MouseEvent) => {
+               // console.log({
+               //    cursorX : e.pageX,
+               //    cursorY : e.pageY,
+               // })
+            }}
+         >
+            {tables.map((table: Table) => {
+               return (
+                  <DraggableTable
+                     key={table.id}
+                     parentRef={dragAreaRef}
+                     table={table}
+                     onClick={onClickTable}
+                     onClickTuple={onClickTuple}
+                     isSelected={table.name === selectedTable?.name}
+                     toolMode={toolMode}
+                  />
+               );
+            })}
+            {arrowLines.map((line: ArrowLineType) => {
+               const key = `${line.start}_${line.end}`;
+               // const label = `${line.startEdgeType} : ${line.endEdgeType}`;
+               return (
+                  <ArrowLine
+                     key={key}
+                     start={line.start} //can be react ref
+                     end={line.end} //or an id
+                  />
+
+                  // <Xarrow
+                  //    key={key}
+                  //    start={line.start} //can be react ref
+                  //    end={line.end} //or an id
+                  //    path={'smooth'}
+                  //    showHead={false}
+                  //    showTail={false}
+                  //    labels={{
+                  //       start : line.startEdgeType,
+                  //       end : line.endEdgeType,
+                  //    }}
+                  //    lineColor={CustomColors.background2}
+                  //    color={'navy'}
+                  //    strokeWidth={2}
+                  //    startAnchor={['left', 'right']}
+                  //    endAnchor={['left', 'right']}
+                  // />
+               );
+            })}
+            {/* <ArrowLine
+                  start={"table-user-tuple-ID"} //can be react ref
+                  end={"table-follow_user-tuple-fromUserId"} //or an id
+               /> */}
+         </DiagramArea>
+         {/* </Xwrapper> */}
       </DiagramPageWrap>
    );
 }

@@ -6,7 +6,7 @@ export enum DiagramToolType {
    COMMENT,
 }
 
-export enum ArrowLineEdgeType {
+export enum RelationType {
    Single = "1",
    Mutiple = "n",
 }
@@ -26,9 +26,21 @@ export interface DiagramToolMode {
    name: string;
 }
 
-export interface ArrowLine {
+export interface ArrowLineType {
    start: string | RefObject<HTMLElement>;
    end: string | RefObject<HTMLElement>;
-   startEdgeType: ArrowLineEdgeType;
-   endEdgeType: ArrowLineEdgeType;
+   startEdgeType: RelationType;
+   endEdgeType: RelationType;
+}
+
+
+export interface PointInfo {
+   x1: number;
+   y1: number;
+   x2: number;
+   y2: number;
+   cx: number;
+   cy: number;
+   length: number;
+   angle: number;
 }

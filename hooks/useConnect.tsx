@@ -1,12 +1,13 @@
-import { ArrowLine, ArrowLineEdgeType, DiagramToolType } from 'interfaces/view/diagram.interface';
+import { Table } from 'interfaces/network/table.interfaces';
+import { ArrowLineType, RelationType, DiagramToolType } from 'interfaces/view/diagram.interface';
 import { arrowLinesState, toolModeState } from 'modules/diagramModule';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 
 function useConnect() {
    const [startEdge, setStartEdge] = useState<string>('');
    const [endEdge, setEndEdge] = useState<string>('');
-   const [line, setLine] = useState<ArrowLine | undefined>();
+   const [line, setLine] = useState<ArrowLineType | undefined>();
    const [arrowLines, setArrowLines] = useRecoilState(arrowLinesState);
    const [toolMode, _] = useRecoilState(toolModeState);
    const isEditMode = toolMode.type === DiagramToolType.EDIT;
@@ -25,35 +26,23 @@ function useConnect() {
          setStartEdge(edgeId);
          return;
       } else {
-        if(isDiffId && isDiffTable){
+         // 끝점 클릭
+         if (isDiffId && isDiffTable) {
             setEndEdge(edgeId);
-        }else{
-            // TODO : 경고 알럿
-        }
+         } else {
+            // TODO : 경고 알럿(같은 id거나 같은 테이블 내에선 관계 생성 불가 메세지)
+         }
          return;
       }
    };
 
    useEffect(() => {
-      console.log('init hooks');
-   }, []);
-
-   useEffect(() => {
-      if (startEdge) {
-         console.log(`startEdge : ${startEdge}`);
-      } else {
-         console.log('startEdge 지워짐');
-      }
-   }, [startEdge]);
-
-   useEffect(() => {
       if (endEdge) {
-         console.log(`endEdge : ${endEdge}`);
-         const newLine: ArrowLine = {
+         const newLine: ArrowLineType = {
             start: startEdge,
             end: endEdge,
-            startEdgeType: ArrowLineEdgeType.Single,
-            endEdgeType: ArrowLineEdgeType.Single,
+            startEdgeType: RelationType.Single,
+            endEdgeType: RelationType.Single,
          };
          setLine(newLine);
          setStartEdge('');
@@ -63,7 +52,6 @@ function useConnect() {
 
    useEffect(() => {
       if (line) {
-         console.log(`line : ${JSON.stringify(line)}`);
          setArrowLines([...arrowLines, line]);
          setLine(undefined);
       }
@@ -92,3 +80,5 @@ export const decomposeEdgeId = (edgeId: string) => {
       };
    }
 };
+
+export const getTupleFromEdgeId = (edgeId: string) => {};
