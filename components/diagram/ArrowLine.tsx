@@ -4,12 +4,10 @@ import { sideWindowWidthState } from 'modules/diagramModule';
 import React, { RefObject, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-// import { getPositionByTransform } from 'utils/position.util';
 
 type Props = {
    start: string | RefObject<HTMLElement>;
    end: string | RefObject<HTMLElement>;
-   //  areaRef: RefObject<HTMLElement>;
    startEdgeType?: RelationType;
    endEdgeType?: RelationType;
    color?: string;
@@ -17,6 +15,8 @@ type Props = {
    startIcon?: string;
    endIcon?: string;
 };
+
+type ClipSide = 'left' | 'right';
 
 export function ArrowLine({
    start,
@@ -30,7 +30,6 @@ export function ArrowLine({
    endIcon = '',
 }: Props) {
    const [sideWindowWidth, _] = useRecoilState(sideWindowWidthState);
-   //  const [pointInfo, setPointInfo] = useState<PointInfo>();
    const [linePath, setLinePath] = useState('');
 
    const getCurrentPosition = () => {
@@ -86,27 +85,52 @@ export function ArrowLine({
       let x2 = 0;
       let y2 = 0;
 
+      // 집게('ㄷ') 모양(서로 같은 사이드에 있을 경우 arrowLine의 모양이 변경되어야함.)
+      let isClipShape: boolean = false;
+      let clipSide: ClipSide = 'left';
+
       // determine where start and end point will start to be drawn(left or right side)
       if (startRect.leftSide.x >= endRect.rightSide.x) {
+         // 겹치지 않고 end컴포넌트(왼),start 컴포넌트(오른)
          x1 = startRect.leftSide.x;
          y1 = startRect.leftSide.y;
-         if (startRect.leftSide.x <= endRect.leftSide.x) {
-            x2 = endRect.leftSide.x;
-            y2 = endRect.leftSide.y;
-         } else {
-            x2 = endRect.rightSide.x;
-            y2 = endRect.rightSide.y;
-         }
-      } else {
+         x2 = endRect.rightSide.x;
+         y2 = endRect.rightSide.y;
+      } else if (startRect.rightSide.x <= endRect.leftSide.x) {
+         // 겹치지 않고 start 컴포넌트(왼),end 컴포넌트(오른)
          x1 = startRect.rightSide.x;
          y1 = startRect.rightSide.y;
-         if (startRect.rightSide.x >= endRect.rightSide.x) {
-            x2 = endRect.rightSide.x;
-            y2 = endRect.rightSide.y;
-         } else {
-            x2 = endRect.leftSide.x;
-            y2 = endRect.leftSide.y;
-         }
+         x2 = endRect.leftSide.x;
+         y2 = endRect.leftSide.y;
+      }
+      // 겹치는 케이스
+      // 1. 왼쪽 집게
+      else if (
+         (startRect.leftSide.x <= endRect.leftSide.x &&
+            startRect.rightSide.x < endRect.rightSide.x) ||
+         (startRect.leftSide.x >= endRect.leftSide.x && startRect.rightSide.x > endRect.rightSide.x)
+      ) {
+         console.log('왼 집게');
+         isClipShape = true;
+         clipSide = 'left';
+         x1 = startRect.leftSide.x;
+         y1 = startRect.leftSide.y;
+         x2 = endRect.leftSide.x;
+         y2 = endRect.leftSide.y;
+      }
+      // 2. 오른쪽 집게
+      else if (
+         (startRect.rightSide.x <= endRect.rightSide.x &&
+            startRect.leftSide.x < endRect.leftSide.x) ||
+         (startRect.rightSide.x >= endRect.rightSide.x && startRect.leftSide.x > endRect.leftSide.x)
+      ) {
+         console.log('오른 집게');
+         isClipShape = true;
+         clipSide = 'right';
+         x1 = startRect.rightSide.x;
+         y1 = startRect.rightSide.y;
+         x2 = endRect.rightSide.x;
+         y2 = endRect.rightSide.y;
       }
 
       // const length = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
@@ -115,12 +139,20 @@ export function ArrowLine({
       // const cy = (y1 + y2) / 2;
 
       let path: string = '';
+      if (isClipShape) {
+         path = `
+            M${x1} ${y1} 
+            H${clipSide === 'left' ? x1 - 30 : cx + 30}
+            V${y2}
+            H${x2}`;
+      } else {
+         path = `
+            M${x1} ${y1} 
+            H${cx}
+            V${y2}
+            H${x2}`;
+      }
 
-      path = `
-        M${x1} ${y1} 
-        H${cx}
-        V${y2}
-        H${x2}`;
       setLinePath(path);
       return;
    };
@@ -141,8 +173,8 @@ export function ArrowLine({
 export default ArrowLine;
 
 const ArrowLineWrap = styled.div`
-  position : absolute;
-  pointer-events: none;
+   position: absolute;
+   pointer-events: none;
 `;
 
 const Line = styled.svg`
