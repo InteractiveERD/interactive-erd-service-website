@@ -222,8 +222,8 @@ const MOCK_TABLES: Table[] = [
 // custom
 
 const DiagramPageWrap = styled.div`
-   width: 100vw;
-   height: 100vh;
+   width: 200vw;
+   height: 200vh;
    background-color: white;
    overflow: hidden;
 `;

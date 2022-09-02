@@ -1,7 +1,5 @@
 import { SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { DraggableContext } from 'contexts/DraggableContext';
-import useForceUpdate from 'hooks/common/useForceUpdate';
-import useArrowLine from 'hooks/useArrowLine';
 import { RelationType } from 'interfaces/view/diagram.interface';
 import { sideWindowWidthState } from 'modules/diagramModule';
 import React, { RefObject, useContext, useEffect, useState } from 'react';
@@ -15,14 +13,11 @@ type Props = {
    startEdgeType?: RelationType;
    endEdgeType?: RelationType;
    color?: string;
+   opacity?: number;
    strokeWidth?: number;
    startIcon?: string;
    endIcon?: string;
-   // parentRef : RefObject<HTMLElement>;
-   // x:  number;
 };
-
-type ClipSide = 'left' | 'right';
 
 export function ArrowLine({
    start,
@@ -30,6 +25,7 @@ export function ArrowLine({
    startEdgeType = RelationType.Single,
    endEdgeType = RelationType.Single,
    color = 'red',
+   opacity = 0.3,
    strokeWidth = 3,
    startIcon = '',
    endIcon = '',
@@ -49,7 +45,6 @@ export function ArrowLine({
 
    useEffect(() => {
       parentRef.current?.addEventListener('mousemove', drawLine);
-      parentRef.current?.addEventListener('scroll', drawLine);
       parentRef.current?.removeEventListener('mouseup', drawLine);
       parentRef.current?.removeEventListener('mouseleave', drawLine);
    }, []);
@@ -62,8 +57,8 @@ export function ArrowLine({
 
       if (!startEle || !endEle) return;
 
-      const startRect = startEle?.getBoundingClientRect();// getBoundingClientRect는 document가 아닌 window기준이기 때문에 window의 스크롤 값을 계산필요(안그러면 스크롤시 문제 발생)
-      const endRect = endEle?.getBoundingClientRect(); 
+      const startRect = startEle?.getBoundingClientRect(); // getBoundingClientRect는 document가 아닌 window기준이기 때문에 window의 스크롤 값을 계산필요(안그러면 스크롤시 문제 발생)
+      const endRect = endEle?.getBoundingClientRect();
 
       const newStartRect = {
          leftSide: {
@@ -190,7 +185,7 @@ export function ArrowLine({
          >
             Middle
          </Dot>
-         <Line>
+         <Line opacity={opacity}>
             <path d={linePath} strokeWidth={strokeWidth} stroke={color} />
          </Line>
       </ArrowLineWrap>
@@ -201,23 +196,28 @@ export default ArrowLine;
 
 const ArrowLineWrap = styled.div`
    position: absolute;
-   pointer-events: none;
+   /* pointer-events: none; */
 `;
 
-const Line = styled.svg`
+const Line = styled.svg<{ opacity?: number }>`
    overflow: visible;
 
    > path {
+      cursor : pointer;
       stroke-linejoin: round;
       stroke-linecap: round;
-      fill: transparent;
+      fill: none;
+      opacity: ${({ opacity }) => opacity || 0.3};
+      &:hover {
+         opacity: 1;
+      }
    }
 `;
 
 const Dot = styled.div<{ color: string }>`
    position: absolute;
-   width: 7px;
-   height: 7px;
+   width: 5px;
+   height: 5px;
    background-color: ${({ color }) => color};
    color: ${({ color }) => color};
    border-radius: 50%;
