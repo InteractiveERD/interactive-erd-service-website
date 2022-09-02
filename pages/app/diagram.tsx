@@ -17,6 +17,7 @@ import {
 import { ArrowLineType, DiagramToolType } from 'interfaces/view/diagram.interface';
 import useConnect from 'hooks/useConnect';
 import ArrowLine from 'components/diagram/ArrowLine';
+import { DraggableWrapper } from 'contexts/DraggableContext';
 
 function DiagramPage({ tables }: { tables: Table[] }) {
    // states
@@ -48,31 +49,38 @@ function DiagramPage({ tables }: { tables: Table[] }) {
          </SideOpenArrow>
          <SideWindow isOpen={isOpenSideWindow} setOpen={setOpenSideWindow} />
 
-         <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
-            <TablesWrap>
-               {tables.map((table: Table) => {
-                  return (
-                     <DraggableTable
-                        key={table.id}
-                        parentRef={dragAreaRef}
-                        table={table}
-                        onClick={onClickTable}
-                        onClickTuple={onClickTuple}
-                        isSelected={table.name === selectedTable?.name}
-                        toolMode={toolMode}
-                     />
-                  );
-               })}
-            </TablesWrap>
+         <DraggableWrapper value={dragAreaRef}>
+            <DiagramArea isOpen={isOpenSideWindow} ref={dragAreaRef}>
+               <TablesWrap>
+                  {tables.map((table: Table) => {
+                     return (
+                        <DraggableTable
+                           key={table.id}
+                           table={table}
+                           onClick={onClickTable}
+                           onClickTuple={onClickTuple}
+                           isSelected={table.name === selectedTable?.name}
+                           toolMode={toolMode}
+                        />
+                     );
+                  })}
+               </TablesWrap>
 
-            <ArrowLinesWrap>
-               {arrowLines.map((line: ArrowLineType) => {
-                  const key = `${line.start}_${line.end}`;
-                  // const label = `${line.startEdgeType} : ${line.endEdgeType}`;
-                  return <ArrowLine key={key} start={line.start} end={line.end} parentRef={dragAreaRef}/>;
-               })}
-            </ArrowLinesWrap>
-         </DiagramArea>
+               <ArrowLinesWrap>
+                  {arrowLines.map((line: ArrowLineType) => {
+                     const key = `${line.start}_${line.end}`;
+                     // const label = `${line.startEdgeType} : ${line.endEdgeType}`;
+                     return (
+                        <ArrowLine
+                           key={key}
+                           start={line.start}
+                           end={line.end}
+                        />
+                     );
+                  })}
+               </ArrowLinesWrap>
+            </DiagramArea>
+         </DraggableWrapper>
       </DiagramPageWrap>
    );
 }

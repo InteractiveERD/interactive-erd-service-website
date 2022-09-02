@@ -1,22 +1,24 @@
 import { BOX_SHADOW } from 'constants/view.const';
 import { Table, TableTuple } from 'interfaces/network/table.interfaces';
-import React, { RefObject, useEffect, useRef } from 'react';
+import React, { RefObject, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { DiagramToolMode, DiagramToolType } from 'interfaces/view/diagram.interface';
 import CustomColors from 'constants/colors';
 import useDrag from 'hooks/useDrag';
+import { DraggableContext } from 'contexts/DraggableContext';
 
 type Props = {
    table: Table;
    toolMode: DiagramToolMode;
-   parentRef: RefObject<HTMLElement>;
+   // parentRef: RefObject<HTMLElement>;
    isSelected: boolean;
    onClickTuple : (edgeId : string) =>void;
    onClick: (table: Table) => void;
 };
 
-function DraggableTable({ table, parentRef, toolMode, isSelected, onClick, onClickTuple }: Props) {
+function DraggableTable({ table, toolMode, isSelected, onClick, onClickTuple }: Props) {
    const tableRef = useRef<HTMLTableElement>(null);
+   const parentRef = useContext(DraggableContext)
 
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
    const isEditMode = toolMode.type === DiagramToolType.EDIT;

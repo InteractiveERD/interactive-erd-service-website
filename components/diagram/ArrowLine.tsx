@@ -1,9 +1,10 @@
 import { SMALL_HEADER_HEIGHT } from 'constants/view.const';
+import { DraggableContext } from 'contexts/DraggableContext';
 import useForceUpdate from 'hooks/common/useForceUpdate';
 import useArrowLine from 'hooks/useArrowLine';
 import { RelationType } from 'interfaces/view/diagram.interface';
 import { sideWindowWidthState } from 'modules/diagramModule';
-import React, { RefObject, useEffect, useState } from 'react';
+import React, { RefObject, useContext, useEffect, useState } from 'react';
 import { useXarrow } from 'react-xarrows';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -17,7 +18,7 @@ type Props = {
    strokeWidth?: number;
    startIcon?: string;
    endIcon?: string;
-   parentRef : RefObject<HTMLElement>;
+   // parentRef : RefObject<HTMLElement>;
    // x:  number;
 };
 
@@ -32,7 +33,6 @@ export function ArrowLine({
    strokeWidth = 3,
    startIcon = '',
    endIcon = '',
-   parentRef,
 }: Props) {
    const [sideWindowWidth, _] = useRecoilState(sideWindowWidthState);
    const [linePath, setLinePath] = useState('');
@@ -43,11 +43,13 @@ export function ArrowLine({
       y2: 0,
    });
 
+   const parentRef = useContext(DraggableContext);
+
    useEffect(() => {
-      parentRef.current?.addEventListener("mousemove", drawLine)
-      parentRef.current?.removeEventListener("mouseup", drawLine)
-      parentRef.current?.removeEventListener("mouseleave", drawLine)
-   }, [])
+      parentRef.current?.addEventListener('mousemove', drawLine);
+      parentRef.current?.removeEventListener('mouseup', drawLine);
+      parentRef.current?.removeEventListener('mouseleave', drawLine);
+   }, []);
 
    const getCurrentPosition = () => {
       const startEle: HTMLElement | null =
@@ -104,7 +106,6 @@ export function ArrowLine({
 
       // 집게('ㄷ') 모양(서로 같은 사이드에 있을 경우 arrowLine의 모양이 변경되어야함.)
       let isClipShape: boolean = false;
-      let clipSide: ClipSide = 'left';
 
       // determine where start and end point will start to be drawn(left or right side)
       if (startRect.leftSide.x >= endRect.rightSide.x) {
@@ -119,65 +120,25 @@ export function ArrowLine({
          y1 = startRect.rightSide.y;
          x2 = endRect.leftSide.x;
          y2 = endRect.leftSide.y;
-      } else if (startRect.rightSide.x >= endRect.leftSide.x) {
-         // TODO: 오른 집게
+      } else {
          isClipShape = true;
-         if (startRect.leftSide.x >= endRect.leftSide.x) {
-            clipSide = 'left';
-            x1 = startRect.leftSide.x;
-            y1 = startRect.leftSide.y;
-            x2 = endRect.leftSide.x;
-            y2 = endRect.leftSide.y;
-         } else {
-            clipSide = 'right';
-            x1 = startRect.rightSide.x;
-            y1 = startRect.rightSide.y;
-            x2 = endRect.rightSide.x;
-            y2 = endRect.rightSide.y;
-         }
+         x1 = startRect.rightSide.x;
+         y1 = startRect.rightSide.y;
+         x2 = endRect.rightSide.x;
+         y2 = endRect.rightSide.y;
       }
-      // // 겹치는 케이스
-      // // 1. 왼쪽 집게
-      // else if (
-      //    (startRect.leftSide.x <= endRect.leftSide.x &&
-      //       startRect.rightSide.x < endRect.rightSide.x) ||
-      //    (startRect.leftSide.x >= endRect.leftSide.x && startRect.rightSide.x > endRect.rightSide.x)
-      // ) {
-      //    console.log('왼 집게');
-      //    isClipShape = true;
-      //    clipSide = 'left';
-      //    x1 = startRect.leftSide.x;
-      //    y1 = startRect.leftSide.y;
-      //    x2 = endRect.leftSide.x;
-      //    y2 = endRect.leftSide.y;
-      // }
-      // // 2. 오른쪽 집게
-      // else if (
-      //    (startRect.rightSide.x <= endRect.rightSide.x &&
-      //       startRect.leftSide.x < endRect.leftSide.x) ||
-      //    (startRect.rightSide.x >= endRect.rightSide.x && startRect.leftSide.x > endRect.leftSide.x)
-      // ) {
-      //    console.log('오른 집게');
-      //    isClipShape = true;
-      //    clipSide = 'right';
-      //    x1 = startRect.rightSide.x;
-      //    y1 = startRect.rightSide.y;
-      //    x2 = endRect.rightSide.x;
-      //    y2 = endRect.rightSide.y;
-      // }
 
       // const length = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
       // const angle = Math.atan2(y1 - y2, x1 - x2) * (180 / Math.PI);
-      const cx = (x1 + x2) / 2;
-      // const cy = (y1 + y2) / 2;
-      // TODO: 좌우상하 스크롤하면 테이블과 상대적위치가 이상해지는 문제 개선, SideWindow닫으면 마우스 움직임 안되는 문제
+      const cx: number = (x1 + x2) / 2;
 
       let path: string = '';
       if (isClipShape) {
-         const endRectWidth = endRect.rightSide.x - endRect.leftSide.x;
+         const rectWidth = endRect.rightSide.x - endRect.leftSide.x;
+
          path = `
             M${x1} ${y1} 
-            H${clipSide === 'left' ? x1 - endRectWidth : cx + endRectWidth / 2}
+            H${cx + rectWidth / 2}
             V${y2}
             H${x2}`;
       } else {
