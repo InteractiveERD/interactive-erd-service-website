@@ -41,12 +41,15 @@ export function ArrowLine({
       y1: 0,
       x2: 0,
       y2: 0,
+      cx: 0,
+      cy: 0,
    });
 
    const parentRef = useContext(DraggableContext);
 
    useEffect(() => {
       parentRef.current?.addEventListener('mousemove', drawLine);
+      parentRef.current?.addEventListener('scroll', drawLine);
       parentRef.current?.removeEventListener('mouseup', drawLine);
       parentRef.current?.removeEventListener('mouseleave', drawLine);
    }, []);
@@ -59,28 +62,28 @@ export function ArrowLine({
 
       if (!startEle || !endEle) return;
 
-      const startRect = startEle?.getBoundingClientRect();
-      const endRect = endEle?.getBoundingClientRect();
+      const startRect = startEle?.getBoundingClientRect();// getBoundingClientRect는 document가 아닌 window기준이기 때문에 window의 스크롤 값을 계산필요(안그러면 스크롤시 문제 발생)
+      const endRect = endEle?.getBoundingClientRect(); 
 
       const newStartRect = {
          leftSide: {
-            x: startRect.left - sideWindowWidth,
-            y: startRect.top - SMALL_HEADER_HEIGHT + startRect.height / 2,
+            x: startRect.left + window.scrollX - sideWindowWidth,
+            y: startRect.top + window.scrollY - SMALL_HEADER_HEIGHT + startRect.height / 2,
          },
          rightSide: {
-            x: startRect.left - sideWindowWidth + startRect.width,
-            y: startRect.top - SMALL_HEADER_HEIGHT + startRect.height / 2,
+            x: startRect.left + window.scrollX - sideWindowWidth + startRect.width,
+            y: startRect.top + window.scrollY - SMALL_HEADER_HEIGHT + startRect.height / 2,
          },
       };
 
       const newEndRect = {
          leftSide: {
-            x: endRect.left - sideWindowWidth,
-            y: endRect.top - SMALL_HEADER_HEIGHT + endRect.height / 2,
+            x: endRect.left + window.scrollX - sideWindowWidth,
+            y: endRect.top + window.scrollY - SMALL_HEADER_HEIGHT + endRect.height / 2,
          },
          rightSide: {
-            x: endRect.left - sideWindowWidth + endRect.width,
-            y: endRect.top - SMALL_HEADER_HEIGHT + endRect.height / 2,
+            x: endRect.left + window.scrollX - sideWindowWidth + endRect.width,
+            y: endRect.top + window.scrollY - SMALL_HEADER_HEIGHT + endRect.height / 2,
          },
       };
 
@@ -130,15 +133,15 @@ export function ArrowLine({
 
       // const length = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
       // const angle = Math.atan2(y1 - y2, x1 - x2) * (180 / Math.PI);
-      const cx: number = (x1 + x2) / 2;
+      let cx: number = (x1 + x2) / 2;
+      const cy: number = (y1 + y2) / 2;
 
       let path: string = '';
       if (isClipShape) {
          const rectWidth = endRect.rightSide.x - endRect.leftSide.x;
-
          path = `
             M${x1} ${y1} 
-            H${cx + rectWidth / 2}
+            H${(cx += rectWidth / 2)}
             V${y2}
             H${x2}`;
       } else {
@@ -155,6 +158,8 @@ export function ArrowLine({
          y1: y1,
          x2: x2,
          y2: y2,
+         cx: cx,
+         cy: cy,
       });
       return;
    };
@@ -178,6 +183,12 @@ export function ArrowLine({
             style={{ transform: `translate(${coordinate.x2}px, ${coordinate.y2}px)` }}
          >
             End
+         </Dot>
+         <Dot
+            color={'gray'}
+            style={{ transform: `translate(${coordinate.cx}px, ${coordinate.cy}px)` }}
+         >
+            Middle
          </Dot>
          <Line>
             <path d={linePath} strokeWidth={strokeWidth} stroke={color} />
