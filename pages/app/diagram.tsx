@@ -1,5 +1,5 @@
 import DiagramLayout from 'components/common/DiagramLayout';
-import React, { ReactElement, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { IoIosArrowForward } from 'react-icons/io';
 import SideWindow from 'components/diagram/SideWindow';
@@ -69,7 +69,7 @@ function DiagramPage({ tables }: { tables: Table[] }) {
                {arrowLines.map((line: ArrowLineType) => {
                   const key = `${line.start}_${line.end}`;
                   // const label = `${line.startEdgeType} : ${line.endEdgeType}`;
-                  return <ArrowLine key={key} start={line.start} end={line.end} />;
+                  return <ArrowLine key={key} start={line.start} end={line.end} parentRef={dragAreaRef}/>;
                })}
             </ArrowLinesWrap>
          </DiagramArea>

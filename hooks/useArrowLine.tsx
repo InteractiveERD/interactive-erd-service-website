@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+
+// type Props= {
+//    tablePosition : {
+//       x : number;
+//       y : number;
+//    }
+// }
 
 function useArrowLine() {
-   const [, setState] = useState({});
+   const [_, setState] = useState({});
 
-   const updateArrowLinePosition = () => setState({})
-
+   const updateArrowLinePosition = useCallback(() => setState({}), []);
 
    useEffect(() => {
       updateArrowLinePosition();
-   })
+   });
 
    return {
       updateArrowLinePosition,

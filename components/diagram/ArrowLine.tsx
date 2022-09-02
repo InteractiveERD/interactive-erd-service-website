@@ -1,4 +1,5 @@
 import { SMALL_HEADER_HEIGHT } from 'constants/view.const';
+import useForceUpdate from 'hooks/common/useForceUpdate';
 import useArrowLine from 'hooks/useArrowLine';
 import { RelationType } from 'interfaces/view/diagram.interface';
 import { sideWindowWidthState } from 'modules/diagramModule';
@@ -16,6 +17,7 @@ type Props = {
    strokeWidth?: number;
    startIcon?: string;
    endIcon?: string;
+   parentRef : RefObject<HTMLElement>;
    // x:  number;
 };
 
@@ -24,18 +26,28 @@ type ClipSide = 'left' | 'right';
 export function ArrowLine({
    start,
    end,
-   //  areaRef,
    startEdgeType = RelationType.Single,
    endEdgeType = RelationType.Single,
    color = 'red',
    strokeWidth = 3,
    startIcon = '',
    endIcon = '',
-}: // x,
-Props) {
+   parentRef,
+}: Props) {
    const [sideWindowWidth, _] = useRecoilState(sideWindowWidthState);
    const [linePath, setLinePath] = useState('');
-   const { updateArrowLinePosition } = useArrowLine();
+   const [coordinate, setCoordinate] = useState({
+      x1: 0,
+      y1: 0,
+      x2: 0,
+      y2: 0,
+   });
+
+   useEffect(() => {
+      parentRef.current?.addEventListener("mousemove", drawLine)
+      parentRef.current?.removeEventListener("mouseup", drawLine)
+      parentRef.current?.removeEventListener("mouseleave", drawLine)
+   }, [])
 
    const getCurrentPosition = () => {
       const startEle: HTMLElement | null =
@@ -107,47 +119,65 @@ Props) {
          y1 = startRect.rightSide.y;
          x2 = endRect.leftSide.x;
          y2 = endRect.leftSide.y;
-      }
-      // 겹치는 케이스
-      // 1. 왼쪽 집게
-      else if (
-         (startRect.leftSide.x <= endRect.leftSide.x &&
-            startRect.rightSide.x < endRect.rightSide.x) ||
-         (startRect.leftSide.x >= endRect.leftSide.x && startRect.rightSide.x > endRect.rightSide.x)
-      ) {
-         console.log('왼 집게');
+      } else if (startRect.rightSide.x >= endRect.leftSide.x) {
+         // TODO: 오른 집게
          isClipShape = true;
-         clipSide = 'left';
-         x1 = startRect.leftSide.x;
-         y1 = startRect.leftSide.y;
-         x2 = endRect.leftSide.x;
-         y2 = endRect.leftSide.y;
+         if (startRect.leftSide.x >= endRect.leftSide.x) {
+            clipSide = 'left';
+            x1 = startRect.leftSide.x;
+            y1 = startRect.leftSide.y;
+            x2 = endRect.leftSide.x;
+            y2 = endRect.leftSide.y;
+         } else {
+            clipSide = 'right';
+            x1 = startRect.rightSide.x;
+            y1 = startRect.rightSide.y;
+            x2 = endRect.rightSide.x;
+            y2 = endRect.rightSide.y;
+         }
       }
-      // 2. 오른쪽 집게
-      else if (
-         (startRect.rightSide.x <= endRect.rightSide.x &&
-            startRect.leftSide.x < endRect.leftSide.x) ||
-         (startRect.rightSide.x >= endRect.rightSide.x && startRect.leftSide.x > endRect.leftSide.x)
-      ) {
-         console.log('오른 집게');
-         isClipShape = true;
-         clipSide = 'right';
-         x1 = startRect.rightSide.x;
-         y1 = startRect.rightSide.y;
-         x2 = endRect.rightSide.x;
-         y2 = endRect.rightSide.y;
-      }
+      // // 겹치는 케이스
+      // // 1. 왼쪽 집게
+      // else if (
+      //    (startRect.leftSide.x <= endRect.leftSide.x &&
+      //       startRect.rightSide.x < endRect.rightSide.x) ||
+      //    (startRect.leftSide.x >= endRect.leftSide.x && startRect.rightSide.x > endRect.rightSide.x)
+      // ) {
+      //    console.log('왼 집게');
+      //    isClipShape = true;
+      //    clipSide = 'left';
+      //    x1 = startRect.leftSide.x;
+      //    y1 = startRect.leftSide.y;
+      //    x2 = endRect.leftSide.x;
+      //    y2 = endRect.leftSide.y;
+      // }
+      // // 2. 오른쪽 집게
+      // else if (
+      //    (startRect.rightSide.x <= endRect.rightSide.x &&
+      //       startRect.leftSide.x < endRect.leftSide.x) ||
+      //    (startRect.rightSide.x >= endRect.rightSide.x && startRect.leftSide.x > endRect.leftSide.x)
+      // ) {
+      //    console.log('오른 집게');
+      //    isClipShape = true;
+      //    clipSide = 'right';
+      //    x1 = startRect.rightSide.x;
+      //    y1 = startRect.rightSide.y;
+      //    x2 = endRect.rightSide.x;
+      //    y2 = endRect.rightSide.y;
+      // }
 
       // const length = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
       // const angle = Math.atan2(y1 - y2, x1 - x2) * (180 / Math.PI);
       const cx = (x1 + x2) / 2;
       // const cy = (y1 + y2) / 2;
+      // TODO: 좌우상하 스크롤하면 테이블과 상대적위치가 이상해지는 문제 개선, SideWindow닫으면 마우스 움직임 안되는 문제
 
       let path: string = '';
       if (isClipShape) {
+         const endRectWidth = endRect.rightSide.x - endRect.leftSide.x;
          path = `
             M${x1} ${y1} 
-            H${clipSide === 'left' ? x1 - 30 : cx + 30}
+            H${clipSide === 'left' ? x1 - endRectWidth : cx + endRectWidth / 2}
             V${y2}
             H${x2}`;
       } else {
@@ -159,17 +189,35 @@ Props) {
       }
 
       setLinePath(path);
+      setCoordinate({
+         x1: x1,
+         y1: y1,
+         x2: x2,
+         y2: y2,
+      });
       return;
    };
 
    useEffect(() => {
       drawLine();
-   }, [updateArrowLinePosition]);
+   }, []);
 
    useXarrow();
 
    return (
       <ArrowLineWrap>
+         <Dot
+            color={'green'}
+            style={{ transform: `translate(${coordinate.x1}px, ${coordinate.y1}px)` }}
+         >
+            Start
+         </Dot>
+         <Dot
+            color={'blue'}
+            style={{ transform: `translate(${coordinate.x2}px, ${coordinate.y2}px)` }}
+         >
+            End
+         </Dot>
          <Line>
             <path d={linePath} strokeWidth={strokeWidth} stroke={color} />
          </Line>
@@ -199,5 +247,6 @@ const Dot = styled.div<{ color: string }>`
    width: 7px;
    height: 7px;
    background-color: ${({ color }) => color};
+   color: ${({ color }) => color};
    border-radius: 50%;
 `;

@@ -1,12 +1,10 @@
-import { SIDE_WINDOW_WIDTH, SMALL_HEADER_HEIGHT } from 'constants/view.const';
+import { SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { Table } from 'interfaces/network/table.interfaces';
 import { DiagramToolMode, DiagramToolType } from 'interfaces/view/diagram.interface';
 import { sideWindowWidthState } from 'modules/diagramModule';
 import React, { RefObject, useCallback } from 'react';
-import { useXarrow } from 'react-xarrows';
 import { useRecoilState } from 'recoil';
 import { getPositionByTransform } from 'utils/position.util';
-import useArrowLine from './useArrowLine';
 
 type Props = {
    table: Table;
@@ -18,7 +16,7 @@ type Props = {
 function useDrag({ table, tableRef, parentRef, toolMode }: Props) {
    const isDragMode = toolMode.type === DiagramToolType.DRAG;
    const [sideWindowWidth, _] = useRecoilState(sideWindowWidthState);
-   const { updateArrowLinePosition } = useArrowLine();
+   // const { updateArrowLinePosition } = useArrowLine();
 
    const getPosition = useCallback(getPositionByTransform, [toolMode]);
 
@@ -26,6 +24,7 @@ function useDrag({ table, tableRef, parentRef, toolMode }: Props) {
       const tableWrap = tableRef.current;
       if (!tableWrap) return;
       tableWrap.style.transform = `translateX(${table.positionX}px) translateY(${table.positionY}px)`;
+      // updateArrowLinePosition();
    }, [toolMode]);
 
    // 컴포넌트의 중앙에 커서가 오도록
@@ -40,7 +39,7 @@ function useDrag({ table, tableRef, parentRef, toolMode }: Props) {
          const newX = cursorX - tableWrap.offsetWidth / 2;
          const newY = cursorY - tableWrap.offsetHeight / 2;
          tableWrap.style.transform = `translateX(${newX}px) translateY(${newY}px)`;
-         updateArrowLinePosition();
+         // updateArrowLinePosition();
       },
       [toolMode, sideWindowWidth],
    );
