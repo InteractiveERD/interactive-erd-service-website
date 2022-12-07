@@ -255,4 +255,5 @@ const DiagramArea = styled.section<{ isOpen: boolean }>`
 `;
 
 const TablesWrap = styled.div``;
-const ArrowLinesWrap = styled.div``;
+const ArrowLinesWrap = styled.div`
+`;

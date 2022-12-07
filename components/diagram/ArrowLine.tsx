@@ -1,3 +1,4 @@
+import CustomColors from 'constants/colors';
 import { SMALL_HEADER_HEIGHT } from 'constants/view.const';
 import { DraggableContext } from 'contexts/DraggableContext';
 import { RelationType } from 'interfaces/view/diagram.interface';
@@ -195,11 +196,12 @@ export function ArrowLine({
 export default ArrowLine;
 
 const ArrowLineWrap = styled.div`
-   position: absolute;
-   /* pointer-events: none; */
+   z-index : 0;
+   background-color: ${CustomColors.background1};
 `;
 
 const Line = styled.svg<{ opacity?: number }>`
+   position: absolute;
    overflow: visible;
 
    > path {
