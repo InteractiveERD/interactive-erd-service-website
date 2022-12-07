@@ -1,5 +1,6 @@
 # Interactive ERD v1.0
 : Draw your own interactive ER diagram using react. Inspired by dbdiagram.io. And this is just a sample product.
+.p.s. I have no designer. Please help me...
 
 ## Background
 : Want to know how does this ERD maker like dbdiagram product works. 
